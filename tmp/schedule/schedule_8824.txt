@@ -1,0 +1,311 @@
+<table class="selectors">
+	<tr>
+		<th>Учебный год:</th>
+		<td>2022 - 2023</td>
+	</tr>
+	<tr>
+		<th>Семестр:</th>
+		<td>Весенний</td>
+	</tr>
+	<tr>
+		<th>Форма обучения:</th>
+		<td>Дневная</td>
+	</tr>
+	<tr>
+		<th>Курс:</th>
+		<td>2</td>
+	</tr>
+	<tr>
+		<th>Специализация:</th>
+		<td>А - Автомобильная техника в транспортных технологиях (23.05.01)</td>
+	</tr>
+	<tr>
+		<th>Группа:</th>
+		<td></td>
+	</tr>
+</table>
+<br/><table class="timetable"><tr><th colspan=6>Понедельник</th></tr>
+<tr>
+	<td><b>Время занятий</b></td>
+	<td><b>Наименование дисциплины</b></td>
+	<td><b>Вид занятий</b></td>
+	<td><b>Периодичность занятий</b></td>
+	<td><b>Аудитория</b></td>
+	<td><b>Преподаватель</b></td>
+</tr>
+<tr>
+	<td>09:55 - 11:25</td>
+	<td style="white-space:pre-wrap">Иностранный язык</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Знаменатель</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>11:35 - 13:05</td>
+	<td style="white-space:pre-wrap">Иностранный язык</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Знаменатель</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>13:55 - 15:25</td>
+	<td style="white-space:pre-wrap">Инженерная экология</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Знаменатель</td>
+	<td>401н</td>
+	<td>Шелмаков С.В.</td>
+</tr>
+<tr>
+	<td>15:35 - 17:05</td>
+	<td style="white-space:pre-wrap">Основы автомобильного спорта (факультатив)</td>
+	<td>Лекции</td>
+	<td>Числитель</td>
+	<td>332</td>
+	<td></td>
+</tr>
+<tr>
+	<td>15:35 - 17:05</td>
+	<td style="white-space:pre-wrap">Теория механизмов и машин</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Знаменатель</td>
+	<td>457а</td>
+	<td></td>
+</tr>
+<tr>
+	<td>17:15 - 18:45</td>
+	<td style="white-space:pre-wrap">Основы автомобильного спорта (факультатив)</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Числитель</td>
+	<td>332</td>
+	<td></td>
+</tr><tr><th colspan=6>Вторник</th></tr>
+<tr>
+	<td><b>Время занятий</b></td>
+	<td><b>Наименование дисциплины</b></td>
+	<td><b>Вид занятий</b></td>
+	<td><b>Периодичность занятий</b></td>
+	<td><b>Аудитория</b></td>
+	<td><b>Преподаватель</b></td>
+</tr>
+<tr>
+	<td>09:55 - 11:25</td>
+	<td style="white-space:pre-wrap">Материаловедение</td>
+	<td>Лабораторные занятия</td>
+	<td>Еженедельно</td>
+	<td>545, 547</td>
+	<td></td>
+</tr>
+<tr>
+	<td>11:35 - 13:05</td>
+	<td style="white-space:pre-wrap">Математика</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Еженедельно</td>
+	<td>903н</td>
+	<td>Доткулова            А.С.</td>
+</tr>
+<tr>
+	<td>13:55 - 15:25</td>
+	<td style="white-space:pre-wrap">Конструкция наземных транспортно-технологических средств</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Числитель</td>
+	<td>502н, 513н</td>
+	<td></td>
+</tr>
+<tr>
+	<td>13:55 - 15:25</td>
+	<td style="white-space:pre-wrap">Конструкция наземных транспортно-технологических средств</td>
+	<td>Лабораторные занятия</td>
+	<td>Знаменатель</td>
+	<td>502н, 513н</td>
+	<td></td>
+</tr>
+<tr>
+	<td>16:15 - 17:45</td>
+	<td style="white-space:pre-wrap">Физическая культура и спорт</td>
+	<td>Лекции</td>
+	<td>Числитель</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>16:15 - 17:45</td>
+	<td style="white-space:pre-wrap">Элективные дисциплины по физической культуре и спорту</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Знаменатель</td>
+	<td></td>
+	<td></td>
+</tr><tr><th colspan=6>Среда</th></tr>
+<tr>
+	<td><b>Время занятий</b></td>
+	<td><b>Наименование дисциплины</b></td>
+	<td><b>Вид занятий</b></td>
+	<td><b>Периодичность занятий</b></td>
+	<td><b>Аудитория</b></td>
+	<td><b>Преподаватель</b></td>
+</tr>
+<tr>
+	<td>09:55 - 11:25</td>
+	<td style="white-space:pre-wrap">Сопротивление материалов</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Еженедельно</td>
+	<td>533</td>
+	<td>Титов                О.В.</td>
+</tr>
+<tr>
+	<td>11:35 - 13:05</td>
+	<td style="white-space:pre-wrap">Инженерная экология</td>
+	<td>Лекции</td>
+	<td>Числитель</td>
+	<td>242</td>
+	<td>Шелмаков С.В.</td>
+</tr>
+<tr>
+	<td>11:35 - 13:05</td>
+	<td style="white-space:pre-wrap">Теория механизмов и машин</td>
+	<td>Лекции</td>
+	<td>Знаменатель</td>
+	<td>427</td>
+	<td>Балабина             Т.А.</td>
+</tr>
+<tr>
+	<td>13:55 - 15:25</td>
+	<td style="white-space:pre-wrap">Сопротивление материалов</td>
+	<td>Лекции</td>
+	<td>Еженедельно</td>
+	<td>159</td>
+	<td>Демьянушко И.В.</td>
+</tr>
+<tr>
+	<td>15:35 - 17:05</td>
+	<td style="white-space:pre-wrap">Основы дизайна</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Еженедельно</td>
+	<td>337</td>
+	<td>Бартенева Г.Н.</td>
+</tr><tr><th colspan=6>Четверг</th></tr>
+<tr>
+	<td><b>Время занятий</b></td>
+	<td><b>Наименование дисциплины</b></td>
+	<td><b>Вид занятий</b></td>
+	<td><b>Периодичность занятий</b></td>
+	<td><b>Аудитория</b></td>
+	<td><b>Преподаватель</b></td>
+</tr>
+<tr>
+	<td>08:15 - 09:45</td>
+	<td style="white-space:pre-wrap">Сопротивление материалов</td>
+	<td>Лабораторные занятия</td>
+	<td>Числитель</td>
+	<td>533</td>
+	<td>Титов                О.В.</td>
+</tr>
+<tr>
+	<td>09:55 - 11:25</td>
+	<td style="white-space:pre-wrap">Теория механизмов и машин</td>
+	<td>Лабораторные занятия</td>
+	<td>Еженедельно</td>
+	<td>457а</td>
+	<td></td>
+</tr>
+<tr>
+	<td>11:35 - 13:05</td>
+	<td style="white-space:pre-wrap">Социология</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Числитель</td>
+	<td>203л</td>
+	<td>Сухорукова Н.Ф.</td>
+</tr>
+<tr>
+	<td>11:35 - 13:05</td>
+	<td style="white-space:pre-wrap">Математика</td>
+	<td>Лабораторные занятия</td>
+	<td>Знаменатель</td>
+	<td>447</td>
+	<td>Доткулова            А.С.</td>
+</tr>
+<tr>
+	<td>13:55 - 15:25</td>
+	<td style="white-space:pre-wrap">Материаловедение</td>
+	<td>Лекции</td>
+	<td>Знаменатель</td>
+	<td>335</td>
+	<td>Петрова Л.Г.</td>
+</tr><tr><th colspan=6>Пятница</th></tr>
+<tr>
+	<td><b>Время занятий</b></td>
+	<td><b>Наименование дисциплины</b></td>
+	<td><b>Вид занятий</b></td>
+	<td><b>Периодичность занятий</b></td>
+	<td><b>Аудитория</b></td>
+	<td><b>Преподаватель</b></td>
+</tr>
+<tr>
+	<td>08:15 - 09:45</td>
+	<td style="white-space:pre-wrap">Проектная деятельность</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Числитель</td>
+	<td>461</td>
+	<td></td>
+</tr>
+<tr>
+	<td>08:15 - 09:45</td>
+	<td style="white-space:pre-wrap">Проектная деятельность</td>
+	<td>Лабораторные занятия</td>
+	<td>Знаменатель</td>
+	<td>461</td>
+	<td></td>
+</tr>
+<tr>
+	<td>09:55 - 11:25</td>
+	<td style="white-space:pre-wrap">Конструкция наземных транспортно-технологических средств</td>
+	<td>Лекции</td>
+	<td>Числитель</td>
+	<td>913н</td>
+	<td>Порватов И.Н.</td>
+</tr>
+<tr>
+	<td>09:55 - 11:25</td>
+	<td style="white-space:pre-wrap">Социология</td>
+	<td>Лекции</td>
+	<td>Знаменатель</td>
+	<td>534</td>
+	<td>Сухорукова Н.Ф.</td>
+</tr>
+<tr>
+	<td>11:35 - 13:05</td>
+	<td style="white-space:pre-wrap">Математика</td>
+	<td>Лекции</td>
+	<td>Еженедельно</td>
+	<td>534</td>
+	<td>Яшина М.В.</td>
+</tr>
+<tr>
+	<td>13:55 - 15:25</td>
+	<td style="white-space:pre-wrap">Элективные дисциплины по физической культуре и спорту</td>
+	<td>Практические занятия /семинар/</td>
+	<td>Еженедельно</td>
+	<td></td>
+	<td></td>
+</tr><tr>
+	<th colspan="6"><b>Полнодневные занятия</b></td>
+</tr>
+<tr>
+	<td colspan="2" rowspan="1">Понедельник</td>
+	
+	<td colspan="2" rowspan="1">День самостоятельной работы</td>
+	<td colspan="2" rowspan="1">Числитель</td>
+</tr><tr>
+	<td colspan="2" rowspan="1">Суббота</td>
+	
+	<td colspan="2" rowspan="1">День самостоятельной работы</td>
+	<td colspan="2" rowspan="1">Еженедельно</td>
+</tr></table><div id="print_btn">
+	<form id="print_form" action="/tplan/print_preview.php" target="_blank" method="post">
+		<input id="print_butn" type="submit" value="Распечатать" onclick="do_print(0)">
+		<input type="hidden" name="toprint" value="1">
+		<input id="htmldata" type="hidden" name="data" value="">
+		<input type="hidden" name="tab" value="7"><input type="hidden" name="gp_id" value="8824">
+	</form>
+</div>
