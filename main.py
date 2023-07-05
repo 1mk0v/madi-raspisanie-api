@@ -5,7 +5,7 @@ import requests
 from Madi_parsing_module.main import Base_methods as madi_parse 
 
 
-from routers import groups
+from routers import groups, schedule
 
 app = FastAPI(title='MADI ASU Terminal API')
 
@@ -19,26 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
-
 app.include_router(groups.router)
+app.include_router(schedule.router)
 
-@app.get('/getTimetable')
-def get_group_timetable_by_id(id:int):
-
-    """Returns JSON schudule of group by id"""
-
-    response = requests.post(request_url.format("tableFiller.php"), 
-                             data={'tab':'7', 'gp_id':f'{id}'})
-    html = bs(response.text, 'lxml')
-    tables = html.find_all('table')
-
-    if len(tables) == 0:
-        raise HTTPException(404, detail=html.text)
-    
-    data = dict()
-    data['selectors'] = madi_parse.selectors(html=tables[0])
-    data['timetable'] = madi_parse.timetable(html=tables[1])
-
-    return data
 

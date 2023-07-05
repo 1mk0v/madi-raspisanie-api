@@ -9,8 +9,8 @@ router = APIRouter(prefix='/groups', tags=['Group methods'])
 request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
 
 
-@router.get('/getIds')
-def get_ids():
+@router.get('/all')
+def all():
 
     """Returns all ID's of groups and their names"""
 
@@ -27,13 +27,13 @@ def get_ids():
     return data
 
 
-@router.get('/getIdByName')
+@router.get('/nameById')
 def get_id_by_name(name:str):
 
     """Returns id of group by their name"""
 
     data = {'message': 'Not found'}
-    groups:dict = get_ids()
+    groups:dict = all()
     val_list = list(groups.values())
     if name in val_list:
         key_list = list(groups.keys())
