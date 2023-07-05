@@ -1,11 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from bs4 import BeautifulSoup as bs
-import requests
-from Madi_parsing_module.main import Base_methods as madi_parse 
 
-
-from routers import groups, schedule
+from routers import groups, schedule, exams,teachers
 
 app = FastAPI(title='MADI ASU Terminal API')
 
@@ -21,5 +17,5 @@ app.add_middleware(
 
 app.include_router(groups.router)
 app.include_router(schedule.router)
-
-
+app.include_router(exams.router)
+app.include_router(teachers.router)
