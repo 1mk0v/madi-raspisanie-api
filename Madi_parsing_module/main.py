@@ -23,17 +23,14 @@
 ############################################################################################################
 
 
-
 class MADI_PARSING_MODULE:
-    
+
     """Base methods of parsing MADI site"""
 
     def __init__(self):
         pass
-    
 
-    def __remove_spaces(self, string:str) -> str():
-
+    def __remove_spaces(self, string: str) -> str():
         """Remove spaces from your string"""
 
         data = string
@@ -41,35 +38,90 @@ class MADI_PARSING_MODULE:
             data = data.replace('  ', ' ')
         if data[len(data)-1] == ' ':
             data = data[:-1]
-        return data      
+        return data
 
-
-    def __remove_garbage(self, string:str, symbols:list=[]) -> str():
-
+    def __remove_garbage(self, string: str, symbols: list = []) -> str():
         """Remove garbage from your string"""
 
         name = string
         garbage = ['\n'] + symbols
         for simbol in garbage:
             if simbol in name:
-                name = name.replace('\n','')
+                name = name.replace('\n', '')
         name = self.__remove_spaces(name)
         return name
-    
 
+    def exam_schedule(self, html: str) -> dict():
+        """Parsing a table with a group class schedule"""
 
-    def timetable(self, html:str) -> dict():
+        schedule = dict()
+        index = 1
+        for tag in html:
+            try:
+                if tag.th.text:
+                    continue
+            except:
+                exam_info: list = tag.text.split('\n')
+                print(exam_info)
+                if exam_info[0] == '' and exam_info[len(exam_info)-1] == '':
+                    exam_info.pop(0)
+                    exam_info.pop(len(exam_info) - 1)
+                if len(exam_info) > 0:
+                    exam_date_time = exam_info[1].split(' ')
+                    try:
+                        schedule[index] = {'name': exam_info[0],
+                                           'time': exam_date_time[0],
+                                           'date': exam_date_time[1],
+                                           'auditorium': exam_info[2],
+                                           'teacher': exam_info[3]
+                                           }
+                    except Exception as error:
+                        raise error
+                    index += 1
 
-        """Parsing timetable of table with a group schedule"""
+        return schedule
+
+    def asu_exam_schedule(self, html: str) -> dict():
+        """Parsing a table with a ASU exam schedule"""
+
+        schedule = dict()
+        date = 0
+        for tag in html:
+            try:
+                if tag.b.text:
+                    continue
+            except:
+                exam_info: list = tag.text.split('\n')
+                print(exam_info, len(exam_info))
+                if exam_info[0] == '' and exam_info[len(exam_info)-1] == '':
+                    exam_info.pop(0)
+                    exam_info.pop(len(exam_info) - 1)
+                if len(exam_info) == 1:
+                    date = exam_info[0]
+                    schedule[date] = dict()
+                if len(exam_info) > 1:
+                    try:
+                        schedule[date] = {'group': self.__remove_spaces(exam_info[0]),
+                                          'time': exam_info[1],
+                                          'name': exam_info[2],
+                                          'auditorium': exam_info[3],
+                                          'teacher':  self.__remove_spaces(exam_info[4])}
+                    except Exception as error:
+                        raise error
+
+        return schedule
+
+    def timetable(self, html: str) -> dict():
+        """Parsing a table with a group exam schedule"""
 
         timetable = dict()
-        currentDay:str
+        currentDay: str
         for tag in html:
             try:
                 currentDay = self.__remove_garbage(tag.th.text)
                 timetable[currentDay] = list()
             except:
-                lesson_info:list = tag.text.split('\n')
+                lesson_info: list = tag.text.split('\n')
                 if lesson_info[0] == '' and lesson_info[len(lesson_info)-1] == '':
                     lesson_info.pop(0)
                     lesson_info.pop(len(lesson_info) - 1)
@@ -81,28 +133,25 @@ class MADI_PARSING_MODULE:
                                                       'lesson_frequency': lesson_info[3],
                                                       'auditorium': lesson_info[4],
                                                       'teacher': lesson_info[5]
-                                                    })
+                                                      })
                     except:
                         timetable[currentDay].append({'lesson_name': lesson_info[0],
                                                       'lesson_type': lesson_info[1],
                                                       'lesson_frequency': lesson_info[2]
                                                       })
         return timetable
-    
 
-    def selectors(self, html:str) -> list(): 
-
+    def selectors(self, html: str) -> list():
         """Parsing selectors of table with a group schedule"""
 
         data = list()
         for tag in html:
             try:
-                data.append({'name': self.__remove_garbage(tag.th.text) , 'value': self.__remove_garbage(tag.td.text)})
+                data.append({'name': self.__remove_garbage(
+                    tag.th.text), 'value': self.__remove_garbage(tag.td.text)})
             except:
                 continue
         return data
-
-
 
 
 Base_methods = MADI_PARSING_MODULE()
