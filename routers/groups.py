@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup as bs
+from Madi_parsing_module.main import Base_methods as madi_parse
 
-
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix='/group', tags=['Groups'])
 
 
@@ -10,7 +10,7 @@ request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
 
 
 @router.get('/')
-async def get_all():
+async def get_groups():
     """Returns all ID's of groups and their names"""
 
     data = dict()
@@ -27,18 +27,60 @@ async def get_all():
 
 
 @router.get('/id')
-async def get_id_by_name(name: str):
+async def get_group_id(name: str):
     """Returns id of group by their name"""
 
     data = {'message': 'Not found'}
-    groups: dict = get_all()
+    groups: dict = await get_groups()
     val_list = list(groups.values())
     if name in val_list:
         key_list = list(groups.keys())
         position = val_list.index(name)
-        data['id'] = key_list[position]
+        data = {'id': key_list[position]}
     return data
 
+
+@router.get('/{id}/schedule/')
+async def get_group_schedule(id:int,
+                             selectors:bool=True):
+
+    """Returns JSON schudule of group by id"""
+
+    response = requests.post(request_url.format("tableFiller.php"), 
+                             data={'tab':'7', 'gp_id':f'{id}'})
+    html = bs(response.text, 'lxml')
+    tables = html.find_all('table')
+
+    if len(tables) == 0:
+        raise HTTPException(404, detail=html.text)
+    
+    data = dict()
+    if selectors:
+        data['selectors'] = madi_parse.selectors(html=tables[0])
+    data['schedule'] = madi_parse.group_schedule(html=tables[1])
+
+    return data
+
+
+@router.get('/{id}/exam/')
+async def get_group_exams(id: int):
+    """Returns JSON exams of group by id"""
+
+    response = requests.post(request_url.format("tableFiller.php"),
+                             data={'tab': '3',
+                                   'gp_id': f'{id}'})
+    
+    html = bs(response.text, 'lxml')
+    tables = html.find_all('table')
+
+    if len(tables) == 0:
+        raise HTTPException(404, detail=html.text)
+
+    data = dict()
+    data['selectors'] = madi_parse.selectors(html=tables[0])
+    data['schedule'] = madi_parse.exam_schedule(html=tables[1])
+
+    return data
 
 @router.post('/add')
 async def add_group(id: int):

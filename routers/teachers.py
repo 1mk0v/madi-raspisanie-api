@@ -9,14 +9,41 @@ router = APIRouter(prefix='/teacher', tags=['Teachers'])
 request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
 
 
-@router.get('/')
-def get_all_teachers():
-    """Returns JSON info about teachers"""
+def get_teacher_id(name:str=None, names:list()=[]) -> dict(): 
+    """Return ID of teacher"""
+    
+    all_teachers:dict = get_all_teachers()
 
-    response = requests.post(request_url.format("task4_prepexam.php"), 
-                             data={'step_no':'1',
-                                   'task_id':'4',
-                                   'kaf_presel':''})
+    val_list = list(all_teachers.values())
+    key_list = list(all_teachers.keys())
+
+    data = dict()
+
+    if len(names) == 0:
+        names.append(name)
+
+    for name in names:
+        try:
+            position = val_list.index(name)
+            data[key_list[position]] = name
+        except: 
+            continue
+            # raise HTTPException(404, detail='Not Found')
+
+    return data
+
+
+@router.get('/')
+def get_all_teachers(sem: Annotated[int, Path(ge=1, le=2)] = 2,
+                     year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001):
+    """Returns the id and names of teachers in MADI"""
+
+    response = requests.post(request_url.format("task8_prepview.php"), 
+                             data={'step_no':'2',
+                                   'task_id':'8',
+                                   'tp_year': year,
+                                   'sem_no': sem,
+                                   'cur_prep': 0})
     
     html = bs(response.text, 'lxml')
     teachers = html.find_all('option')
@@ -27,76 +54,32 @@ def get_all_teachers():
     data = dict()
 
     for teacher in teachers:
-        if '20' not in teacher.text and 'Выберите преподавателя' not in teacher.text: 
-            data[int(teacher['value'])] = madi_parse.remove_spaces(teacher.text) 
+        if int(teacher['value']) > 0:
+            data[teacher['value']] = madi_parse.remove_spaces(teacher.text)
 
     return data
 
 
-@router.get('/asu')
-def get_asu_teachers():
-    response = requests.post(request_url.format("tableFiller.php"),
-                             data={'tab': '10',
-                                   'kf_id': '61',
-                                   'kf_name': 'Автоматизированных систем управления',
-                                   'sort': '2',
-                                   'tp_year': f'{int(datetime.today().strftime("%Y"))-2001}',
-                                   'sem_no': '2'})
-    html = bs(response.text, 'lxml')
-    asu_teachers = html.find_all('th')
-    
-
-    if len(asu_teachers) == 0:
-        raise HTTPException(404, detail=html.text)
-    
-    data = dict()
-    all_teachers:dict = get_all_teachers()
-    val_list = list(all_teachers.values())
-
-    for tag in asu_teachers:
-        try:
-            if tag['colspan']:
-                name = madi_parse.remove_spaces(tag.text)
-                if name in val_list:
-                    key_list = list(all_teachers.keys())
-                    position = val_list.index(name)
-                    data[key_list[position]] = name
-        except:
-            continue
-    
-    return data
-
-
-@router.get('/id')
-async def get_id_of_teacher_name(name:str): 
+@router.get('/{id}')
+async def get_teacher_name(id:int): 
     
     """Return ID of teacher"""
 
-    data = {
-        'name': name,
-        'result':'Not found'
-    }
-
     all_teachers:dict = get_all_teachers()
-    val_list = list(all_teachers.values())
-
-    if name in val_list:
-        key_list = list(all_teachers.keys())
-        position = val_list.index(name)
-        data = {
-            'name': name,
-            'result':key_list[position]
-            }
+    try:
+        data = {id: all_teachers[id]}
+    except:
+        raise HTTPException(404, detail='Not found')
 
     return data
 
 
-@router.get('/exams/{id}')
-async def get_exam_by_teacher_id(id: int,
+@router.get('/{id}/exam/')
+async def get_teacher_exam(id: int,
                            year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001,
                            selectors: bool = True):
     
-    """Returns JSON exams of teacher by id and year"""
+    """Returns JSON exam of teacher by id and year"""
 
     response = requests.post(request_url.format("tableFiller.php"),
                              data={'tab': '4',
@@ -115,5 +98,34 @@ async def get_exam_by_teacher_id(id: int,
     if selectors:
         data['selectors'] = madi_parse.selectors(html=tables[0])
     data['schedule'] = madi_parse.exam_schedule(html=tables[1])
+
+    return data
+
+
+@router.get('/{id}/schedule/')
+async def get_teacher_schedule(id:int,
+                               year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001,
+                               selectors:bool=True):
+
+    """Returns JSON teacher schudule"""
+
+    response = requests.post(request_url.format("tableFiller.php"), 
+                             data={
+                                   'tab':'8',
+                                   'tp_year':f'{year}',
+                                   'sem_no':'2',
+                                   'pr_id':f'{id}',
+                                  })
+    
+    html = bs(response.text, 'lxml')
+    tables = html.find_all('table')
+
+    if len(tables) == 0:
+        raise HTTPException(404, detail=html.text)
+    
+    data = dict()
+    if selectors:
+        data['selectors'] = madi_parse.selectors(html=tables[0])
+    data['schedule'] = madi_parse.teacher_schedule(html=tables[1])
 
     return data
