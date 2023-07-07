@@ -82,7 +82,7 @@ class MADI_PARSING_MODULE:
         return schedule
 
 
-    def asu_exam_schedule(self, html: str) -> dict():
+    def department_exam_schedule(self, html: str) -> dict():
         """Parsing a table with a ASU exam schedule"""
 
         schedule = list()
@@ -93,7 +93,6 @@ class MADI_PARSING_MODULE:
                     continue
             except:
                 exam_info: list = tag.text.split('\n')
-                print(exam_info, len(exam_info))
                 if exam_info[0] == '' and exam_info[len(exam_info)-1] == '':
                     exam_info.pop(0)
                     exam_info.pop(len(exam_info) - 1)
@@ -135,13 +134,15 @@ class MADI_PARSING_MODULE:
                     date = teacher_schedule[0]
                 if len(teacher_schedule) > 1:
                     try:
-                        schedule.append({'time': teacher_schedule[0],
-                                         'date': date,
-                                         'group': self.remove_spaces(teacher_schedule[0]),
-                                          'name': teacher_schedule[2],
-                                          'type': teacher_schedule[3],
-                                          'frequency': teacher_schedule[4],
-                                          'auditorium': teacher_schedule[5]
+                        schedule.append({'date': {
+                                           "day": date,
+                                           'time': teacher_schedule[0],
+                                         },
+                                         'group': self.remove_spaces(teacher_schedule[1]),
+                                         'name': teacher_schedule[2],
+                                         'type': teacher_schedule[3],
+                                         'frequency': teacher_schedule[4],
+                                         'auditorium': teacher_schedule[5]
                                         })
                     except Exception as error:
                         raise error
@@ -149,15 +150,14 @@ class MADI_PARSING_MODULE:
         return schedule
 
 
-    def timetable(self, html: str) -> dict():
+    def group_schedule(self, html: str) -> dict():
         """Parsing a table with a group exam schedule"""
 
-        timetable = dict()
+        timetable = list()
         currentDay: str
         for tag in html:
             try:
                 currentDay = self.__remove_garbage(tag.th.text)
-                timetable[currentDay] = list()
             except:
                 lesson_info: list = tag.text.split('\n')
                 if lesson_info[0] == '' and lesson_info[len(lesson_info)-1] == '':
@@ -165,18 +165,22 @@ class MADI_PARSING_MODULE:
                     lesson_info.pop(len(lesson_info) - 1)
                 if len(lesson_info) > 0 and lesson_info[0] != 'Время занятий':
                     try:
-                        timetable[currentDay].append({'time': lesson_info[0],
-                                                      'name': lesson_info[1],
-                                                      'type': self.__remove_garbage(lesson_info[2]),
-                                                      'frequency': lesson_info[3],
-                                                      'auditorium': lesson_info[4],
-                                                      'teacher': self.remove_spaces(lesson_info[5])
-                                                      })
+                        timetable.append({
+                            'date':{
+                                'day': currentDay,
+                                'time':lesson_info[0],
+                            },
+                            'name': lesson_info[1],
+                            'type': self.__remove_garbage(lesson_info[2]),
+                            'frequency': lesson_info[3],
+                            'auditorium': lesson_info[4],
+                            'teacher': self.remove_spaces(lesson_info[5])
+                        })
                     except:
-                        timetable[currentDay].append({'week_day': lesson_info[0],
-                                                      'type': lesson_info[1],
-                                                      'frequency': lesson_info[2]
-                                                      })
+                        timetable.append({'day': lesson_info[0],
+                                          'type': lesson_info[1],
+                                          'frequency': lesson_info[2]
+                                        })
         return timetable
 
 
