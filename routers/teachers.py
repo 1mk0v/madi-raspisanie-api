@@ -3,13 +3,15 @@ from bs4 import BeautifulSoup as bs
 from Madi_parsing_module.main import Base_methods as madi_parse
 from datetime import datetime 
 from typing import Annotated
+
+
 from fastapi import APIRouter, HTTPException, Path
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
 
 request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
 
 
-def get_teacher_id(name:str=None, names:list()=[]) -> dict(): 
+def get_teacher_id(name:str=None, names=list()) -> dict(): 
     """Return ID of teacher"""
     
     all_teachers:dict = get_all_teachers()
@@ -19,8 +21,10 @@ def get_teacher_id(name:str=None, names:list()=[]) -> dict():
 
     data = dict()
 
-    if len(names) == 0:
-        names.append(name)
+    if len(names) == 0 and name == None:
+        raise Exception()
+    
+    names.append(name)    
 
     for name in names:
         try:
@@ -43,7 +47,7 @@ def get_all_teachers(sem: Annotated[int, Path(ge=1, le=2)] = 2,
                                    'task_id':'8',
                                    'tp_year': year,
                                    'sem_no': sem,
-                                   'cur_prep': 0})
+                                   'cur_prep': '0'})
     
     html = bs(response.text, 'lxml')
     teachers = html.find_all('option')
@@ -56,7 +60,6 @@ def get_all_teachers(sem: Annotated[int, Path(ge=1, le=2)] = 2,
     for teacher in teachers:
         if int(teacher['value']) > 0:
             data[teacher['value']] = madi_parse.remove_spaces(teacher.text)
-
     return data
 
 
@@ -66,8 +69,9 @@ async def get_teacher_name(id:int):
     """Return ID of teacher"""
 
     all_teachers:dict = get_all_teachers()
+
     try:
-        data = {id: all_teachers[id]}
+        data = {str(id): all_teachers[str(id)]}
     except:
         raise HTTPException(404, detail='Not found')
 
@@ -94,7 +98,7 @@ async def get_teacher_exam(id: int,
         raise HTTPException(404, detail=html.text)
 
     data = dict()
-    data['teacher'] = get_all_teachers()[id]
+    data['teacher'] = get_all_teachers()[str(id)]
     if selectors:
         data['selectors'] = madi_parse.selectors(html=tables[0])
     data['schedule'] = madi_parse.exam_schedule(html=tables[1])
