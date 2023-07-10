@@ -47,11 +47,11 @@ class MADI_PARSING_MODULE:
         garbage = ['\n'] + symbols
         for simbol in garbage:
             if simbol in name:
-                name = name.replace('\n', '')
+                name = name.replace(simbol, '')
         name = self.remove_spaces(name)
         return name
 
-        
+    
     def exam_schedule(self, html: str) -> dict():
         """Parsing a table with a group class schedule"""
 
@@ -74,7 +74,7 @@ class MADI_PARSING_MODULE:
                                                     'time': exam_date_time[1]
                                                    },
                                            'auditorium': exam_info[2],
-                                           'teacher': exam_info[3]
+                                           'teacher': self.__remove_garbage(exam_info[3], ['..']) 
                                         })
                     except Exception as error:
                         raise error
@@ -118,7 +118,7 @@ class MADI_PARSING_MODULE:
     def teacher_schedule(self, html: str) -> list():
         """Parsing a table with a ASU exam schedule"""
 
-        schedule = list()
+        schedule = dict()
         date = 0
         for tag in html:
             try:
@@ -126,38 +126,71 @@ class MADI_PARSING_MODULE:
                     continue
             except:
                 teacher_schedule: list = tag.text.split('\n')
-                print(teacher_schedule, len(teacher_schedule))
                 if teacher_schedule[0] == '' and teacher_schedule[len(teacher_schedule)-1] == '':
                     teacher_schedule.pop(0)
                     teacher_schedule.pop(len(teacher_schedule) - 1)
                 if len(teacher_schedule) == 1:
                     date = teacher_schedule[0]
+                    schedule[date] = list()
                 if len(teacher_schedule) > 1:
                     try:
-                        schedule.append({'date': {
-                                           "day": date,
-                                           'time': teacher_schedule[0],
-                                         },
-                                         'group': self.remove_spaces(teacher_schedule[1]),
-                                         'name': teacher_schedule[2],
-                                         'type': teacher_schedule[3],
-                                         'frequency': teacher_schedule[4],
-                                         'auditorium': teacher_schedule[5]
-                                        })
+                        schedule[date].append({
+                            'time': teacher_schedule[0],
+                            'group': self.remove_spaces(teacher_schedule[1]),
+                            'name': teacher_schedule[2],
+                            'type': teacher_schedule[3],
+                            'frequency': teacher_schedule[4],
+                            'auditorium': teacher_schedule[5]
+                            })
                     except Exception as error:
                         raise error
 
         return schedule
 
 
+    def department_groups_schedule(self, html: str) -> dict:
+        schedule = dict()
+        date = 0
+        for tag in html:
+            try:
+                if tag.b.text:
+                    continue
+            except:
+                data: list = tag.text.split('\n')
+                if data[0] == '' and data[len(data)-1] == '':
+                    data.pop(0)
+                    data.pop(len(data) - 1)
+                if len(data) == 1:
+                    date = data[0]
+                    schedule[date] = list()
+                if len(data) > 1:
+                    try:
+                        schedule[date].append({
+                            'date': {
+                                'time': data[0],
+                                'frequency': data[1],
+                                },
+                            'auditorium': data[2],
+                            'group': self.remove_spaces(data[3]),
+                            'lesson': data[4],
+                            'teacher': self.remove_spaces(data[5])
+                            })
+                    except Exception as error:
+                        raise error     
+        return schedule
+
+
+
+
     def group_schedule(self, html: str) -> dict():
         """Parsing a table with a group exam schedule"""
 
-        timetable = list()
+        schedule = dict()
         currentDay: str
         for tag in html:
             try:
                 currentDay = self.__remove_garbage(tag.th.text)
+                schedule[currentDay] = list()
             except:
                 lesson_info: list = tag.text.split('\n')
                 if lesson_info[0] == '' and lesson_info[len(lesson_info)-1] == '':
@@ -165,11 +198,8 @@ class MADI_PARSING_MODULE:
                     lesson_info.pop(len(lesson_info) - 1)
                 if len(lesson_info) > 0 and lesson_info[0] != 'Время занятий':
                     try:
-                        timetable.append({
-                            'date':{
-                                'day': currentDay,
-                                'time':lesson_info[0],
-                            },
+                        schedule[currentDay].append({
+                            'time':lesson_info[0],
                             'name': lesson_info[1],
                             'type': self.__remove_garbage(lesson_info[2]),
                             'frequency': lesson_info[3],
@@ -177,11 +207,11 @@ class MADI_PARSING_MODULE:
                             'teacher': self.remove_spaces(lesson_info[5])
                         })
                     except:
-                        timetable.append({'day': lesson_info[0],
+                        schedule[currentDay].append({'day': lesson_info[0],
                                           'type': lesson_info[1],
                                           'frequency': lesson_info[2]
                                         })
-        return timetable
+        return schedule
 
 
     def selectors(self, html: str) -> list():
