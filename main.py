@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers import departments, groups, schedule, teachers, asu
+from database import database
 
 app = FastAPI(title='MADI ASU Terminal API')
 
@@ -20,3 +21,4 @@ app.include_router(groups.router)
 app.include_router(asu.router)
 app.include_router(departments.router)
 app.include_router(schedule.router)
+app.include_router(database.router)
