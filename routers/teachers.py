@@ -13,10 +13,10 @@ router = APIRouter(prefix='/teacher', tags=['Teachers'])
 
 
 
-def get_teacher_id(name:str=None, names=list()) -> dict(): 
+async def get_teacher_id(name:str=None, names=list()) -> dict(): 
     """Return ID of teacher"""
     
-    all_teachers:dict = get_all_teachers()
+    all_teachers:dict = await get_all_teachers()
 
     val_list = list(all_teachers.values())
     key_list = list(all_teachers.keys())
@@ -34,13 +34,15 @@ def get_teacher_id(name:str=None, names=list()) -> dict():
             data[key_list[position]] = name
         except: 
             continue
-            # raise HTTPException(404, detail='Not Found')
-
+    
+    if len(data) == 0:
+        raise HTTPException(404, detail='Not Found')
+            
     return data
 
 
 @router.get('/')
-def get_all_teachers(sem: Annotated[int, Path(ge=1, le=2)] = 2,
+async def get_all_teachers(sem: Annotated[int, Path(ge=1, le=2)] = 2,
                      year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001):
     """Returns the id and names of teachers in MADI"""
 
@@ -62,6 +64,7 @@ def get_all_teachers(sem: Annotated[int, Path(ge=1, le=2)] = 2,
     for teacher in teachers:
         if int(teacher['value']) > 0:
             data[teacher['value']] = madi_parse.remove_spaces(teacher.text)
+
     return data
 
 
@@ -70,7 +73,7 @@ async def get_teacher_name(id:int):
     
     """Return ID of teacher"""
 
-    all_teachers:dict = get_all_teachers()
+    all_teachers:dict = await get_all_teachers()
 
     try:
         data = {str(id): all_teachers[str(id)]}

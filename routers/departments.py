@@ -4,6 +4,8 @@ from Madi_parsing_module.main import Base_methods as madi_parse
 from datetime import datetime
 
 from .teachers import get_teacher_id
+from database import schemas, models, database
+
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, Path
 router = APIRouter(prefix='/departments', tags=['Departments'])
@@ -13,23 +15,28 @@ from routers import request_url
 @router.get('/')
 async def get_departemnts():
     """Returns departments of MADI"""
-
-    response = requests.post(request_url.format("task11_kafview.php"),
-                             data={'task_id': '11',
-                                   'step_no': '1',
-                                   'kaf_presel': ''})
-    
-    html = bs(response.text, 'lxml')
-    select = html.find_all('select', {'id':'kf_id'})
-
-    if len(select) == 0:
-        raise HTTPException(404, detail=html.text)
-
     data = dict()
-    for department in select[0]:
-        if int(department['value']) > 0:
-            data[department['value']] = madi_parse.remove_spaces(department.text) 
+    try:
+        response = requests.post(request_url.format("task11_kafview.php"),
+                                 data={'task_id': '11',
+                                       'step_no': '1',
+                                       'kaf_presel': ''})
 
+        html = bs(response.text, 'lxml')
+        select = html.find_all('select', {'id':'kf_id'})
+
+        if len(select) == 0:
+            raise HTTPException(404, detail=html.text)
+
+        for department in select[0]:
+            if int(department['value']) > 0:
+                data[department['value']] = madi_parse.remove_spaces(department.text) 
+
+    except:
+
+        query = schemas.department.select()
+        data = dict(await database.database.fetch_all(query))
+        
     return data
 
 
@@ -55,7 +62,7 @@ async def get_department_teachers(id:int,
     for teacher in dep_teachers:
         teachers.append(madi_parse.remove_spaces(teacher.text))
 
-    return get_teacher_id(names=teachers)
+    return await get_teacher_id(names=teachers)
 
 
 @router.get('/{id}/auditoriums')
@@ -86,7 +93,32 @@ async def get_department_auditoriums(id:int,
         except:
             continue
     
+    if len(auditoriums) == 0:
+        raise HTTPException(404)
+
     return {'auditoriums':auditoriums}
+
+
+@router.get('/{id}/groups')
+async def get_department_groups(id:int,
+                                year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001,
+                                sem_number:Annotated[int, Path(ge=1, le=2)] = 2) -> list:
+    
+    response = requests.post(request_url.format("tableFiller.php"),
+                             data={'tab': '11',
+                                   'kf_id': f'{id}',
+                                   'sort': '2',
+                                   'tp_year': f'{year}',
+                                   'sem_no': f'{sem_number}'})
+    
+    html = bs(response.text, 'lxml')
+    table = html.find_all('table')
+    
+    schedule = list()
+    if len(table) > 0:
+        schedule = madi_parse.department_groups(table[1])
+  
+    return schedule
 
 
 @router.get('/{id}/schedule')
@@ -108,6 +140,9 @@ async def get_department_groups_schedule(id:int,
         raise HTTPException(404, detail=html.text)
     
     schedule = madi_parse.department_groups_schedule(table[1])
+
+    if len(schedule) == 0:
+        raise HTTPException(404) 
     
     return {'schedule':schedule}
 
@@ -138,5 +173,3 @@ async def get_departemnt_exams(id:int = 61,
     data['schedule'] = madi_parse.department_exam_schedule(html=tables[1])
 
     return data
-
-

@@ -1,13 +1,33 @@
 import requests
 from bs4 import BeautifulSoup as bs
 from Madi_parsing_module.main import Base_methods as madi_parse
+from routers import request_url
+
 
 from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix='/group', tags=['Groups'])
 
 
-from routers import request_url
+async def get_groups_id(name:str=None, names:list=list()):
 
+    groups = await get_groups()
+    if len(names) == 0 and name == None:
+        raise Exception()
+
+    
+    names.append(name)    
+
+    data = dict()
+    val_list = list(groups.values())
+    key_list = list(groups.keys())
+
+    for name in names:
+        try:     
+            position = val_list.index(name)
+            data[key_list[position]] = name
+        except: 
+            continue
+    return data
 
 @router.get('/')
 async def get_groups():
@@ -30,13 +50,10 @@ async def get_groups():
 async def get_group_id(name: str):
     """Returns id of group by their name"""
 
-    data = {'message': 'Not found'}
-    groups: dict = await get_groups()
-    val_list = list(groups.values())
-    if name in val_list:
-        key_list = list(groups.keys())
-        position = val_list.index(name)
-        data = {'id': key_list[position]}
+    data = await get_groups_id(name)
+    if len(data) == 0:
+        data = {'message': 'Not found'}
+   
     return data
 
 
@@ -82,8 +99,8 @@ async def get_group_exams(id: int):
 
     return data
 
-@router.post('/add')
-async def add_group(id: int):
-    """Add group by id"""
+# @router.post('/add')
+# async def add_group(id: int):
+#     """Add group by id"""
     
-    pass
+#     pass
