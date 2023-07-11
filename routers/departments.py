@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Path
 router = APIRouter(prefix='/departments', tags=['Departments'])
 
-request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
+from routers import request_url
 
 @router.get('/')
 async def get_departemnts():

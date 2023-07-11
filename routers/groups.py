@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix='/group', tags=['Groups'])
 
 
-request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
+from routers import request_url
 
 
 @router.get('/')
@@ -78,7 +78,7 @@ async def get_group_exams(id: int):
 
     data = dict()
     data['selectors'] = madi_parse.selectors(html=tables[0])
-    data['schedule'] = madi_parse.exam_schedule(html=tables[1])
+    data['schedule'] = madi_parse.group_exam_schedule(html=tables[1])
 
     return data
 

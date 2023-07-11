@@ -1,14 +1,13 @@
 import requests
 from bs4 import BeautifulSoup as bs
 from Madi_parsing_module.main import Base_methods as madi_parse
-from datetime import datetime
 
-from typing import Annotated
-from fastapi import APIRouter, HTTPException , Path
+import json
+from fastapi import APIRouter
+from .groups import get_group_schedule
 router = APIRouter(prefix='/schedule', tags=['Schedules'])
 
-
-request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
+from routers import request_url
 
 
 @router.get('/')
@@ -22,7 +21,7 @@ async def get_schedule():
     # for tag in html:
     #     schedule:dict
     #     try:
-    #         schedule = get_group_schedule(tag['value'])
+    #         schedule = await get_group_schedule(tag['value'])
     #     except Exception as error:
     #         schedule = {'Пока его нет('}
     #     data[tag['value']] = {
@@ -30,4 +29,4 @@ async def get_schedule():
     #         'value': schedule
     #     }
     #     print(tag['value'], 'is parsed')
-    # return data
+    # pass

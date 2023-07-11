@@ -1,3 +1,5 @@
+from routers import request_url
+
 import requests
 from bs4 import BeautifulSoup as bs
 from Madi_parsing_module.main import Base_methods as madi_parse
@@ -8,7 +10,7 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Path
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
 
-request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
+
 
 
 def get_teacher_id(name:str=None, names=list()) -> dict(): 
@@ -101,7 +103,7 @@ async def get_teacher_exam(id: int,
     data['teacher'] = get_all_teachers()[str(id)]
     if selectors:
         data['selectors'] = madi_parse.selectors(html=tables[0])
-    data['schedule'] = madi_parse.exam_schedule(html=tables[1])
+    data['schedule'] = madi_parse.teacher_exam_schedule(html=tables[1])
 
     return data
 
