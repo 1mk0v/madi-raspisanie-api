@@ -23,6 +23,8 @@
 ############################################################################################################
 
 
+from Madi_parsing_module import week_days
+
 class MADI_PARSING_MODULE:
 
     """Base methods of parsing MADI site"""
@@ -51,8 +53,38 @@ class MADI_PARSING_MODULE:
         name = self.remove_spaces(name)
         return name
 
-    
-    def exam_schedule(self, html: str) -> dict():
+
+    def teacher_exam_schedule(self, html: str) -> dict():
+        """Parsing a table with a group class schedule"""
+
+        schedule = list()
+        for tag in html:
+            try:
+                if tag.th.text:
+                    continue
+            except:
+                exam_info: list = tag.text.split('\n')
+                if exam_info[0] == '' and exam_info[len(exam_info)-1] == '':
+                    exam_info.pop(0)
+                    exam_info.pop(len(exam_info) - 1)
+                if len(exam_info) > 0:
+                    exam_date_time = exam_info[1].split(' ')
+                    try:
+                        schedule.append({'group': exam_info[0],
+                                           'date': {
+                                                    'day': exam_date_time[0],
+                                                    'time': exam_date_time[1]
+                                                   },
+                                           'auditorium': exam_info[2],
+                                           'name': exam_info[3] 
+                                        })
+                    except Exception as error:
+                        raise error
+
+        return schedule    
+
+
+    def group_exam_schedule(self, html: str) -> dict():
         """Parsing a table with a group class schedule"""
 
         schedule = list()
@@ -130,7 +162,7 @@ class MADI_PARSING_MODULE:
                     teacher_schedule.pop(0)
                     teacher_schedule.pop(len(teacher_schedule) - 1)
                 if len(teacher_schedule) == 1:
-                    date = teacher_schedule[0]
+                    date = week_days[teacher_schedule[0]]
                     schedule[date] = list()
                 if len(teacher_schedule) > 1:
                     try:
@@ -161,7 +193,7 @@ class MADI_PARSING_MODULE:
                     data.pop(0)
                     data.pop(len(data) - 1)
                 if len(data) == 1:
-                    date = data[0]
+                    date = week_days[data[0]]
                     schedule[date] = list()
                 if len(data) > 1:
                     try:
@@ -189,7 +221,8 @@ class MADI_PARSING_MODULE:
         currentDay: str
         for tag in html:
             try:
-                currentDay = self.__remove_garbage(tag.th.text)
+                currentDay = week_days[self.__remove_garbage(tag.th.text)]
+                print(currentDay)
                 schedule[currentDay] = list()
             except:
                 lesson_info: list = tag.text.split('\n')
@@ -198,6 +231,7 @@ class MADI_PARSING_MODULE:
                     lesson_info.pop(len(lesson_info) - 1)
                 if len(lesson_info) > 0 and lesson_info[0] != 'Время занятий':
                     try:
+                        print(lesson_info)
                         schedule[currentDay].append({
                             'time':lesson_info[0],
                             'name': lesson_info[1],
@@ -207,10 +241,11 @@ class MADI_PARSING_MODULE:
                             'teacher': self.remove_spaces(lesson_info[5])
                         })
                     except:
-                        schedule[currentDay].append({'day': lesson_info[0],
-                                          'type': lesson_info[1],
-                                          'frequency': lesson_info[2]
-                                        })
+                        print(lesson_info)
+                        schedule[currentDay].append({'day': week_days[lesson_info[0]],
+                                                     'type': lesson_info[1],
+                                                     'frequency': lesson_info[2]
+                                                    })
         return schedule
 
 
