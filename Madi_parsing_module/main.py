@@ -212,6 +212,22 @@ class MADI_PARSING_MODULE:
         return schedule
 
 
+    def department_groups(self, html: str) -> list:
+        groups = list()
+        for tag in html:
+            try:
+                if tag.b.text:
+                    continue
+            except:
+                data: list = tag.text.split('\n')
+                if len(data) > 1:
+                    try:
+                        group = self.remove_spaces(data[4])
+                        if group not in groups:
+                            groups.append(group)
+                    except:
+                        continue     
+        return groups
 
 
     def group_schedule(self, html: str) -> dict():
