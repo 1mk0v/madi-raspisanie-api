@@ -43,7 +43,7 @@ async def get_teacher_id(name:str=None, names=list()) -> dict():
 
 @router.get('/')
 async def get_all_teachers(sem: Annotated[int, Path(ge=1, le=2)] = 2,
-                     year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001):
+                           year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001):
     """Returns the id and names of teachers in MADI"""
 
     response = requests.post(request_url.format("task8_prepview.php"), 
@@ -101,9 +101,8 @@ async def get_teacher_exam(id: int,
 
     if len(tables) == 0:
         raise HTTPException(404, detail=html.text)
-
+    
     data = dict()
-    data['teacher'] = get_all_teachers()[str(id)]
     if selectors:
         data['selectors'] = madi_parse.selectors(html=tables[0])
     data['schedule'] = madi_parse.teacher_exam_schedule(html=tables[1])

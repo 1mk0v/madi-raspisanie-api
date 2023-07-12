@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from .departments import get_department_groups_schedule
 router = APIRouter(prefix='/asu', tags=['ASU'])
 
-from routers import request_url
+from routers import request_url, week_days
 
 ASU_ID:int = 61
 

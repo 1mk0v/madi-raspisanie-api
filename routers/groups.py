@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix='/group', tags=['Groups'])
 
 
-async def get_groups_id(name:str=None, names:list=list()):
+async def get_groups_id(name:str=None, names:list=list()): # type: ignore
 
     groups = await get_groups()
     if len(names) == 0 and name == None:
@@ -69,7 +69,7 @@ async def get_group_schedule(id:int,
     tables = html.find_all('table')
 
     if len(tables) == 0:
-        raise HTTPException(404, detail=html.text)
+        return HTTPException(404, detail=html.text)
     
     data = dict()
     if selectors:

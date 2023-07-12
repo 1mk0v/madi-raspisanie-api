@@ -23,7 +23,6 @@
 ############################################################################################################
 
 
-from Madi_parsing_module import week_days
 
 class MADI_PARSING_MODULE:
 
@@ -162,7 +161,7 @@ class MADI_PARSING_MODULE:
                     teacher_schedule.pop(0)
                     teacher_schedule.pop(len(teacher_schedule) - 1)
                 if len(teacher_schedule) == 1:
-                    date = week_days[teacher_schedule[0]]
+                    date = self.__remove_garbage(teacher_schedule[0])
                     schedule[date] = list()
                 if len(teacher_schedule) > 1:
                     try:
@@ -193,7 +192,7 @@ class MADI_PARSING_MODULE:
                     data.pop(0)
                     data.pop(len(data) - 1)
                 if len(data) == 1:
-                    date = week_days[data[0]]
+                    date = self.__remove_garbage(data[0])
                     schedule[date] = list()
                 if len(data) > 1:
                     try:
@@ -237,8 +236,7 @@ class MADI_PARSING_MODULE:
         currentDay: str
         for tag in html:
             try:
-                currentDay = week_days[self.__remove_garbage(tag.th.text)]
-                print(currentDay)
+                currentDay = self.__remove_garbage(tag.th.text)
                 schedule[currentDay] = list()
             except:
                 lesson_info: list = tag.text.split('\n')
@@ -247,7 +245,6 @@ class MADI_PARSING_MODULE:
                     lesson_info.pop(len(lesson_info) - 1)
                 if len(lesson_info) > 0 and lesson_info[0] != 'Время занятий':
                     try:
-                        print(lesson_info)
                         schedule[currentDay].append({
                             'time':lesson_info[0],
                             'name': lesson_info[1],
@@ -257,15 +254,15 @@ class MADI_PARSING_MODULE:
                             'teacher': self.remove_spaces(lesson_info[5])
                         })
                     except:
-                        print(lesson_info)
-                        schedule[currentDay].append({'day': week_days[lesson_info[0]],
+                        # print(lesson_info)
+                        schedule[currentDay].append({'day': self.__remove_garbage(lesson_info[0]),
                                                      'type': lesson_info[1],
                                                      'frequency': lesson_info[2]
                                                     })
         return schedule
 
 
-    def selectors(self, html: str) -> list():
+    def selectors(self, html: str) -> list(): 
         """Parsing selectors of table with a group schedule"""
 
         data = list()
