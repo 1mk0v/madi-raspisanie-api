@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 import sqlalchemy 
 
 
@@ -100,50 +100,50 @@ async def post_teachers():
 async def post_schedule_groups():
     this_groups = await get_groups()
     for group_id in this_groups:
-        print(group_id)
         group_schedules = await get_group_schedule(group_id)
-        # query = schedule.insert().value(group_id=group_id)
-        # last_id = database.execute(query)
-        for week_day in group_schedules['schedule']:
-            day_schedules = group_schedules['schedule'][week_day]
-            for this_schedule in day_schedules:
+            # query = schedule.insert().value(group_id=group_id)
+            # last_id = database.execute(query)
+        if type(group_schedules) != HTTPException:
+            for week_day in group_schedules['schedule']:
+                day_schedules = group_schedules['schedule'][week_day]
+                for this_schedule in day_schedules:
 
-                week_id = await get_week_day(week_day)
+                    week_id = await get_week_day(week_day)
 
-                time_id:int
-                try:
-                    time_id = await post_or_get_time(time, this_schedule['time'])
-                except:
-                    continue
-                
-                # lesson_id:int
-                # try:
-                #     lesson_id = await post_or_get_id(lesson, this_schedule['name'])
-                # except:
-                #     print(this_schedule['name'])
-                #     continue
-                
-                print(week_id, time_id)#, lesson_id, type_id, frequency_id, auditorium_id, teacher_id)
-                # type_id:int
-                # try:
-                #     type_id = await post_or_get_id(schedule_type, this_schedule['type'])
-                # except:
-                #     continue
-                # frequency_id:int
-                # try:
-                #     frequency_id = await post_or_get_id(frequency, this_schedule['frequency'])
-                # except:
-                #     continue
-                # auditorium_id:int
-                # try:
-                #     auditorium_id = await post_or_get_id(auditorium, this_schedule['auditorium'])
-                # except:
-                #     continue
-                # teacher_id:int
-                # try:
-                #     teacher_id = await post_or_get_id(teacher, this_schedule['teacher'])
-                # except:
-                #     continue
+                    time_id:int
+                    try:
+                        time_id = await post_or_get_time(time, this_schedule['time'])
+                    except:
+                        continue
+                    
+                    # lesson_id:int
+                    # try:
+                    #     lesson_id = await post_or_get_id(lesson, this_schedule['name'])
+                    # except:
+                    #     print(this_schedule['name'])
+                    #     continue
+
+                    print(week_id, time_id)#, lesson_id, type_id, frequency_id, auditorium_id, teacher_id)
+                    # type_id:int
+                    # try:
+                    #     type_id = await post_or_get_id(schedule_type, this_schedule['type'])
+                    # except:
+                    #     continue
+                    # frequency_id:int
+                    # try:
+                    #     frequency_id = await post_or_get_id(frequency, this_schedule['frequency'])
+                    # except:
+                    #     continue
+                    # auditorium_id:int
+                    # try:
+                    #     auditorium_id = await post_or_get_id(auditorium, this_schedule['auditorium'])
+                    # except:
+                    #     continue
+                    # teacher_id:int
+                    # try:
+                    #     teacher_id = await post_or_get_id(teacher, this_schedule['teacher'])
+                    # except:
+                    #     continue
 
                 
 

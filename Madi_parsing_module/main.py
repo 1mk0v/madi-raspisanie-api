@@ -254,11 +254,14 @@ class MADI_PARSING_MODULE:
                             'teacher': self.remove_spaces(lesson_info[5])
                         })
                     except:
-                        # print(lesson_info)
+                        print(lesson_info)
                         schedule[currentDay].append({'day': self.__remove_garbage(lesson_info[0]),
                                                      'type': lesson_info[1],
                                                      'frequency': lesson_info[2]
                                                     })
+                    else:
+                        schedule[currentDay].append({'name': lesson_info[0]})
+                        
         return schedule
 
 

@@ -50,37 +50,11 @@ schedule = Table(
     Column("group_id", Integer, ForeignKey("group.id"))
 )
 
-
-schedule_info = Table(
-    "schedule_info",
-    metadata,
-    Column("id", Integer, ForeignKey("schedule.id")),
-    Column("week_day_id", Integer, ForeignKey("week_day.id")),
-    Column("time_id", Integer, ForeignKey("time.id")),
-    Column("lesson_id", Integer, ForeignKey("lesson.id")),
-    Column("type_id", Integer, ForeignKey("schedule_type.id")),
-    Column("frequency_id", Integer, ForeignKey("frequency.id")),
-    Column("auditorium_id", Integer, ForeignKey("auditorium.id")),
-    Column("teacher_id", Integer, ForeignKey("teacher.id")),
-)
-
-
 exam = Table(
     "exam",
     metadata,
     Column("id", Integer, primary_key=True),
     Column("group_id", Integer, ForeignKey("group.id"))
-)
-
-
-exam_info = Table(
-    "exam_info",
-    metadata,
-    Column("id", Integer, ForeignKey("schedule.id")),
-    Column("date_id", Integer, ForeignKey("time.id")),
-    Column("lesson_id", Integer, ForeignKey("lesson.id")),
-    Column("auditorium_id", Integer, ForeignKey("auditorium.id")),
-    Column("teacher_id", Integer, ForeignKey("teacher.id"))
 )
 
 
@@ -140,6 +114,31 @@ auditorium = Table(
     Column("value", String, unique=True)
 )
 
+
+schedule_info = Table(
+    "schedule_info",
+    metadata,
+    Column("schedule_id", Integer, ForeignKey("schedule.id")),
+    Column("week_day_id", Integer, ForeignKey("week_day.id")),
+    Column("time_id", Integer, ForeignKey("time.id")),
+    Column("lesson_id", Integer, ForeignKey("lesson.id")),
+    Column("type_id", Integer, ForeignKey("schedule_type.id")),
+    Column("frequency_id", Integer, ForeignKey("frequency.id")),
+    Column("auditorium_id", Integer, ForeignKey("auditorium.id")),
+    Column("teacher_id", Integer, ForeignKey("teacher.id")),
+)
+
+
+exam_info = Table(
+    "exam_info",
+    metadata,
+    Column("exam_id", Integer, ForeignKey("exam.id")),
+    Column("date_id", Integer, ForeignKey("date.id")),
+    Column("time_id", Integer, ForeignKey("time.id")),
+    Column("lesson_id", Integer, ForeignKey("lesson.id")),
+    Column("auditorium_id", Integer, ForeignKey("auditorium.id")),
+    Column("teacher_id", Integer, ForeignKey("teacher.id"))
+)
 
 
 metadata.create_all(engine)
