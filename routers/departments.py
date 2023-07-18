@@ -1,10 +1,11 @@
+from routers import get_current_sem, get_current_year
+
 import requests
 from bs4 import BeautifulSoup as bs
-from Madi_parsing_module.main import Base_methods as madi_parse
-from datetime import datetime
+from Madi_parsing_module.main import Department, remove_garbage, remove_spaces, set_selectors
 
 from .teachers import get_teacher_id
-from database import schemas, models, database
+from database import schemas, database
 
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, Path
@@ -30,7 +31,7 @@ async def get_departemnts():
 
         for department in select[0]:
             if int(department['value']) > 0:
-                data[department['value']] = madi_parse.remove_spaces(department.text) 
+                data[department['value']] = remove_spaces(department.text)
 
     except:
 
@@ -42,8 +43,9 @@ async def get_departemnts():
 
 @router.get('/{id}/teachers/')
 async def get_department_teachers(id:int,
-                            sem_number:int = 1,
-                            year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001):
+                                  sem_number:Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+                                  year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()):
+    
     """Returns the id and names of teachers in the department"""
     
     response = requests.post(request_url.format("tableFiller.php"),
@@ -52,6 +54,7 @@ async def get_department_teachers(id:int,
                                    'sort': '1',
                                    'tp_year': f'{year}',
                                    'sem_no': f'{sem_number}'})
+    
     html = bs(response.text, 'lxml')
     dep_teachers = html.find_all('td', class_='bright')
     
@@ -60,15 +63,15 @@ async def get_department_teachers(id:int,
     
     teachers = list()
     for teacher in dep_teachers:
-        teachers.append(madi_parse.remove_spaces(teacher.text))
+        teachers.append(remove_spaces(teacher.text))
 
     return await get_teacher_id(names=teachers)
 
 
 @router.get('/{id}/auditoriums')
 async def get_department_auditoriums(id:int,
-                                     year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001,
-                                     sem_number:Annotated[int, Path(ge=1, le=2)] = 2):
+                                     sem_number:Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+                                     year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()):
     
     response = requests.post(request_url.format("tableFiller.php"),
                              data={'tab': '11',
@@ -101,8 +104,8 @@ async def get_department_auditoriums(id:int,
 
 @router.get('/{id}/groups')
 async def get_department_groups(id:int,
-                                year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001,
-                                sem_number:Annotated[int, Path(ge=1, le=2)] = 2) -> list:
+                                sem_number:Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+                                year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()) -> list:
     
     response = requests.post(request_url.format("tableFiller.php"),
                              data={'tab': '11',
@@ -116,15 +119,15 @@ async def get_department_groups(id:int,
     
     schedule = list()
     if len(table) > 0:
-        schedule = madi_parse.department_groups(table[1])
+        schedule = Department.groups(table[1])
   
     return schedule
 
 
 @router.get('/{id}/schedule')
 async def get_department_groups_schedule(id:int,
-                                     year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001,
-                                     sem_number:Annotated[int, Path(ge=1, le=2)] = 2):
+                                        sem_number:Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+                                        year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()):
     
     response = requests.post(request_url.format("tableFiller.php"),
                              data={'tab': '11',
@@ -139,7 +142,7 @@ async def get_department_groups_schedule(id:int,
     if len(table) < 1:
         raise HTTPException(404, detail=html.text)
     
-    schedule = madi_parse.department_groups_schedule(table[1])
+    schedule = Department.groups_schedule(table[1])
 
     if len(schedule) == 0:
         raise HTTPException(404) 
@@ -149,16 +152,18 @@ async def get_department_groups_schedule(id:int,
 
 @router.get('/{id}/exams')
 async def get_departemnt_exams(id:int = 61,
-                               year: Annotated[int, Path(ge=19, le=99)] = int(datetime.today().strftime("%Y"))-2001,
+                               sem_number:Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+                               year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year(),
                                selectors:bool= True):
-    """Returns JSON exams of ASU"""
+    
+    """Returns JSON exams of department"""
 
     response = requests.post(request_url.format("tableFiller.php"),
                              data={'tab': '10',
                                    'kf_id': f'{id}',
                                    'sort': '1',
                                    'tp_year': f'{year}',
-                                   'sem_no': '2'})
+                                   'sem_no': f'{sem_number}'})
     
     html = bs(response.text, 'lxml')
     tables = html.find_all('table')
@@ -169,7 +174,7 @@ async def get_departemnt_exams(id:int = 61,
 
     data = dict()
     if selectors:
-        data['selectors'] = madi_parse.selectors(html=tables[0])
-    data['schedule'] = madi_parse.department_exam_schedule(html=tables[1])
+        data['selectors'] = set_selectors(html=tables[0])
+    data['schedule'] = Department.exam_schedule(html=tables[1])
 
     return data
