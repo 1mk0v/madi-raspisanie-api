@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from datetime import datetime, timedelta
 from .departments import get_department_groups_schedule
 router = APIRouter(prefix='/asu', tags=['ASU'])
 
-from routers import request_url, week_days
+from routers import week_days
 
-ASU_ID:int = 61
+ASU_ID = 61
 
 
 @router.get('/free-audiences')
