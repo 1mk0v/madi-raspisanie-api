@@ -1,4 +1,6 @@
 from datetime import datetime 
+from pydantic import BaseModel
+
 
 request_url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
 

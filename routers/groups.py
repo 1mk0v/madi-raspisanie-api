@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup as bs
 from Madi_parsing_module.main import Group, remove_garbage, remove_spaces, set_selectors
+from Madi_parsing_module.models import *
 from routers import request_url
-
 
 from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix='/group', tags=['Groups'])
@@ -30,7 +30,7 @@ async def get_groups_id(name:str=None, names:list=list()):
     return data
 
 @router.get('/')
-async def get_groups():
+async def get_groups() -> Dict[str,str]:
     """Returns all ID's of groups and their names"""
 
     data = dict()
@@ -42,7 +42,7 @@ async def get_groups():
 
 
 @router.get('/{id}')
-async def get_group_id(id: str):
+async def get_group_id(id: str) -> Dict[str, str]:
 
     """Returns id of group by their name"""
     groups: dict = await get_groups()
@@ -56,7 +56,7 @@ async def get_group_id(id: str):
 
 
 @router.get('/{id}/exam/')
-async def get_group_exams(id: int):
+async def get_group_exams(id: int) -> Exam_Info:
     """Returns JSON exams of group by id"""
 
     response = requests.post(request_url.format("tableFiller.php"),
@@ -69,16 +69,14 @@ async def get_group_exams(id: int):
     if len(tables) == 0:
         raise HTTPException(404, detail=html.text)
 
-    data = dict()
-    data['selectors'] = set_selectors(html=tables[0])
-    data['schedule'] = Group.exam_schedule(html=tables[1])
+    data = Group.exam_schedule(html=tables[1])
 
     return data
 
 
 @router.get('/{id}/schedule/')
 async def get_group_schedule(id:int,
-                             selectors:bool=True):
+                             selectors:bool=True) -> Schedule_Info:
 
     """Returns JSON schudule of group by id"""
 

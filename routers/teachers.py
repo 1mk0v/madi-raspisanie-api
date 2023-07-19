@@ -84,11 +84,8 @@ async def get_teacher_name(id: int):
 
 @router.get('/{id}/exam/')
 async def get_teacher_exam(id: int,
-                           sem: Annotated[int, Path(
-                               ge=1, le=2)] = get_current_sem(),
-                           year: Annotated[int, Path(
-                               ge=19, le=get_current_year())] = get_current_year(),
-                           selectors: bool = True):
+                           sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+                           year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()):
 
     """Returns JSON exam of teacher by id and year"""
 
@@ -104,10 +101,8 @@ async def get_teacher_exam(id: int,
     if len(tables) == 0:
         raise HTTPException(404, detail=html.text)
 
-    data = dict()
-    if selectors:
-        data['selectors'] = set_selectors(html=tables[0])
-    data['schedule'] = Teacher.exam_schedule(html=tables[1])
+    name = (await get_teacher_name(id))
+    data = Teacher.exam_schedule(html=tables[1], teacher_name=name[str(id)])
 
     return data
 
@@ -115,8 +110,7 @@ async def get_teacher_exam(id: int,
 @router.get('/{id}/schedule/')
 async def get_teacher_schedule(id: int,
                                sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
-                               year: Annotated[int, Path(ge=19, le=99)] = get_current_year(),
-                               selectors: bool = True):
+                               year: Annotated[int, Path(ge=19, le=99)] = get_current_year()):
 
     """Returns JSON teacher schudule"""
 
@@ -131,10 +125,8 @@ async def get_teacher_schedule(id: int,
 
     if len(tables) == 0:
         raise HTTPException(404, detail=html.text)
-
-    data = dict()
-    if selectors:
-        data['selectors'] = set_selectors(html=tables[0])
-    data['schedule'] = Teacher.schedule(html=tables[1])
+    
+    name = (await get_teacher_name(id))
+    data = Teacher.get_schedule(html=tables[1], teacher_name=name[str(id)])
 
     return data
