@@ -104,7 +104,7 @@ async def get_teacher_exam(id: int,
     name = (await get_teacher_name(id))
     data = Teacher.exam_schedule(html=tables[1], teacher_name=name[str(id)])
 
-    return data
+    return data.dict(exclude_none=True)
 
 
 @router.get('/{id}/schedule/')
@@ -129,4 +129,4 @@ async def get_teacher_schedule(id: int,
     name = (await get_teacher_name(id))
     data = Teacher.get_schedule(html=tables[1], teacher_name=name[str(id)])
 
-    return data
+    return data.dict

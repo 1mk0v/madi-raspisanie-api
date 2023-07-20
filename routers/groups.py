@@ -42,7 +42,7 @@ async def get_groups() -> Dict[str,str]:
 
 
 @router.get('/{id}')
-async def get_group_id(id: str) -> Dict[str, str]:
+async def get_group_name(id: str) -> Dict[str, str]:
 
     """Returns id of group by their name"""
     groups: dict = await get_groups()
@@ -56,7 +56,8 @@ async def get_group_id(id: str) -> Dict[str, str]:
 
 
 @router.get('/{id}/exam/')
-async def get_group_exams(id: int) -> Exam_Info:
+async def get_group_exams(id: int):
+
     """Returns JSON exams of group by id"""
 
     response = requests.post(request_url.format("tableFiller.php"),
@@ -71,12 +72,11 @@ async def get_group_exams(id: int) -> Exam_Info:
 
     data = Group.exam_schedule(html=tables[1])
 
-    return data
+    return data.dict(exclude_none=True)
 
 
 @router.get('/{id}/schedule/')
-async def get_group_schedule(id:int,
-                             selectors:bool=True) -> Schedule_Info:
+async def get_group_schedule(id:int):
 
     """Returns JSON schudule of group by id"""
 
@@ -88,12 +88,11 @@ async def get_group_schedule(id:int,
     if len(tables) == 0:
         return HTTPException(404, detail=html.text)
     
-    data = dict()
-    if selectors:
-        data['selectors'] = set_selectors(html=tables[0])
-    data['schedule'] = Group.schedule(html=tables[1])
+    group_name = (await get_group_name(str(id)))
 
-    return data
+    data = Group.schedule(html=tables[1], group_name=group_name[str(id)])
+
+    return data.dict(exclude_none=True)
 
 
 # @router.post('/add')

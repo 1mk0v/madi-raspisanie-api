@@ -151,10 +151,11 @@ async def get_department_groups_schedule(id:int,
 
 
 @router.get('/{id}/exams')
-async def get_departemnt_exams(id:int = 61,
-                               sem_number:Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
-                               year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year(),
-                               selectors:bool= True):
+async def get_departemnt_exams(
+    id:int = 61,
+    sem_number:Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+    year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()
+    ):
     
     """Returns JSON exams of department"""
 
@@ -172,9 +173,6 @@ async def get_departemnt_exams(id:int = 61,
         p = html.find_all('p')
         raise HTTPException(404, detail=p[0].text)
 
-    data = dict()
-    if selectors:
-        data['selectors'] = set_selectors(html=tables[0])
-    data['schedule'] = Department.exam_schedule(html=tables[1])
+    data = Department.exam_schedule(html=tables[1])
 
-    return data
+    return data.dict(exclude_none=True)
