@@ -1,18 +1,18 @@
 
 from typing import Dict, List
-from pydantic import BaseModel
+from pydantic import BaseModel, BaseConfig
 
 
 class Date(BaseModel):
     #TODO - change types
-    date:str | None = None
+    day:str | None = None
     friequency: str | None = None
     time:str | None = None
 
 
 class Schedule(BaseModel):
     date: Date
-    discipline:str
+    discipline:str | List
     type:str | None = None
     group:str | None = None
     teacher:str | None = None

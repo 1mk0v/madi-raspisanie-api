@@ -88,14 +88,17 @@ class Teacher:
                     exam_info.pop(len(exam_info) - 1)
                 if len(exam_info) > 0:
                     exam_date_time = exam_info[1].split(' ')
-                    data.exam.append(Schedule(date=Date(date=exam_date_time[0],
-                                                        time=exam_date_time[1]),
-                                              group=exam_info[0],
-                                              discipline=exam_info[3],
-                                              auditorium=exam_info[2]
+                    data.exam.append(Schedule(
+                        date=Date(
+                            day=exam_date_time[0],
+                            time=exam_date_time[1]
+                        ),
+                        group=exam_info[0],
+                        discipline=exam_info[3],
+                        auditorium=exam_info[2]
                     ))
 
-        return data.dict(exclude_none=True)
+        return data
 
 
     @staticmethod
@@ -118,26 +121,35 @@ class Teacher:
                     date = remove_garbage(schedule[0])
                     data.schedule[date] = list()
                 if len(schedule) > 1:
-                    data.schedule[date].append(Schedule(group=remove_spaces(schedule[1]),
-                                                        discipline=schedule[2],
-                                                        date=Date(friequency=schedule[4],
-                                                                   time=schedule[0]),
-                                                        type=schedule[3],
-                                                        auditorium=schedule[5]))
-        return data.dict(exclude_none=True)
+                    data.schedule[date].append(Schedule(
+                        group=remove_spaces(schedule[1]),
+                        discipline=schedule[2],
+                        date=Date(
+                            friequency=schedule[4],
+                            time=schedule[0]
+                        ),
+                        type=schedule[3],
+                        auditorium=schedule[5]))
+        return data
 
 
 class Group:
 
+    """
+        Parsing methods for group object
+    """
     def __init__(self) -> None:
         pass
 
 
     @staticmethod
     def schedule(html: str, group_name: str = None) -> Schedule_Info:
+        #TODO
+        """
+        Parsing a table with a group exam schedule \n
+        Have error on 8744 8745 8746 8748 ID's
+        """
 
-        """Parsing a table with a group exam schedule"""
-        
         data = Schedule_Info(name=group_name, schedule={})
         currentDay: str
         for tag in html:
@@ -145,43 +157,50 @@ class Group:
                 currentDay = remove_garbage(tag.th.text)
                 data.schedule[currentDay] = list()
             except:
-                lesson_info: list = tag.text.split('\n')
-                if lesson_info[0] == '' and lesson_info[len(lesson_info)-1] == '':
-                    lesson_info.pop(0)
-                    lesson_info.pop(len(lesson_info) - 1)
-                if len(lesson_info) > 3 and lesson_info[0] != 'Время занятий':
-                    print(lesson_info, len(lesson_info))
-                    data.schedule[currentDay].append(Schedule(
-                        date=Date(
-                            time=lesson_info[0],
-                            friequency=lesson_info[3]
-                        ),
-                        discipline=lesson_info[1],
-                        type=remove_garbage(lesson_info[2]),
-                        auditorium=lesson_info[4],
-                        teacher=remove_spaces(lesson_info[5])
+                schedule:list = tag.text.split('\n')
+                if schedule[0] == '' and schedule[len(schedule)-1] == '':
+                    schedule.pop(0)
+                    schedule.pop(len(schedule) - 1)
+                if len(schedule) > 1 and schedule[0] != 'Время занятий':
+                    try:
+                        data.schedule[currentDay].append(Schedule(
+                            date=Date(
+                                time=schedule[0],
+                                friequency=schedule[3]
+                            ),
+                            discipline=schedule[1],
+                            type=remove_garbage(schedule[2]),
+                            auditorium=schedule[4],
+                            teacher=remove_spaces(schedule[5])
+                            )
+                        )
+                    except:
+                        data.schedule[currentDay].append(Schedule(
+                            date=Date(
+                                friequency=schedule[2],
+                                day=schedule[0]
+                            ),
+                            discipline=schedule[1]
                         )
                     )
-                    # print(lesson_info)
-                    #     print(type(lesson_info[0]) == type(currentDay))
-                    #     data.schedule[lesson_info[0]].append(Schedule(
-                    #         date=Date(
-                    #             frequency=lesson_info[2]
-                    #         ),
-                    #         type=currentDay,
-                    #         discipline=lesson_info[1]
-                    #     )
-                    # )
-                    # print(currentDay)
-
+                    # else:
+                    #     print(schedule)
+                    #     if len(schedule) == 1:
+                    #         length = len(data.schedule[currentDay]) - 1
+                    #         if type(data.schedule[currentDay][length].discipline) == str:
+                    #             added_discipline = data.schedule[currentDay][length].discipline
+                    #             data.schedule[currentDay][length].discipline = list(added_discipline)
+                    #         else:
+                    #             data.schedule[currentDay][length].discipline.append(schedule[0])
+                       
         return data
 
 
     @staticmethod
-    def exam_schedule(html: str) -> Exam_Info:
+    def exam_schedule(html: str, group_name:str = None) -> Exam_Info:
         """Parsing a table with a group class schedule"""
 
-        schedule = list()
+        data = Exam_Info(name=group_name, exam=list())
         for tag in html:
             try:
                 if tag.th.text:
@@ -193,18 +212,17 @@ class Group:
                     exam_info.pop(len(exam_info) - 1)
                 if len(exam_info) > 0:
                     exam_date_time = exam_info[1].split(' ')
-                    try:
-                        schedule.append({'name': exam_info[0],
-                                         'date': {
-                                                  'day': exam_date_time[0],
-                                                  'time': exam_date_time[1]
-                                                 },
-                                         'auditorium': exam_info[2],
-                                         'teacher': remove_garbage(exam_info[3], ['..']) 
-                                        })
-                    except Exception as error:
-                        raise error
-        return schedule
+                    data.exam.append(Schedule(
+                        date=Date(
+                            day=exam_date_time[0],
+                            time=exam_date_time[1]
+                            ),
+                        discipline=exam_info[0],
+                        auditorium=exam_info[2],
+                        teacher=remove_garbage(exam_info[3], ['..'])
+                    ))
+
+        return data
 
 
 class Department:
@@ -212,9 +230,11 @@ class Department:
         pass
     
     @staticmethod
-    def exam_schedule(html: str) -> Exam_Info:
+    def exam_schedule(html: str, department_name:str = None) -> Exam_Info:
+
         """Parsing a table with a ASU exam schedule"""
-        schedule = list()
+
+        data = Exam_Info(name=department_name, exam=list())
         date = 0
         for tag in html:
             try:
@@ -228,52 +248,47 @@ class Department:
                 if len(exam_info) == 1:
                     date = exam_info[0]
                 if len(exam_info) > 1:
-                    try:
-                        schedule.append({'group': remove_spaces(exam_info[0]),
-                                         'date':{
-                                              'day':date,
-                                              'time': exam_info[1]
-                                          },
-                                          'name': exam_info[2],
-                                          'auditorium': exam_info[3],
-                                          'teacher':  remove_spaces(exam_info[4])
-                                        })
-                    except Exception as error:
-                        raise error
-        return schedule
+                    data.exam.append(Schedule(
+                        date=Date(
+                            day=date,
+                            time=exam_info[1]
+                        ),
+                        group=remove_spaces(exam_info[0]),
+                        discipline=exam_info[2],
+                        auditorium=exam_info[3],
+                        teacher= remove_spaces(exam_info[4])
+                    ))
+        return data
 
 
     @staticmethod
-    def groups_schedule(html: str) -> Schedule_Info:
-        schedule = dict()
+    def groups_schedule(html: str, department_name:str = None) -> Schedule_Info:
+        data = Schedule_Info(name=department_name, schedule=dict())
         date = 0
         for tag in html:
             try:
                 if tag.b.text:
                     continue
             except:
-                data: list = tag.text.split('\n')
-                if data[0] == '' and data[len(data)-1] == '':
-                    data.pop(0)
-                    data.pop(len(data) - 1)
-                if len(data) == 1:
-                    date = remove_garbage(data[0])
-                    schedule[date] = list()
-                if len(data) > 1:
-                    try:
-                        schedule[date].append({
-                            'date': {
-                                'time': data[0],
-                                'frequency': data[1],
-                                },
-                            'auditorium': data[2],
-                            'group': remove_spaces(data[3]),
-                            'lesson': data[4],
-                            'teacher': remove_spaces(data[5])
-                            })
-                    except Exception as error:
-                        raise error     
-        return schedule
+                schedule:list = tag.text.split('\n')
+                if schedule[0] == '' and schedule[len(schedule)-1] == '':
+                    schedule.pop(0)
+                    schedule.pop(len(schedule) - 1)
+                if len(schedule) == 1:
+                    date = remove_garbage(schedule[0])
+                    data.schedule[date] = list()
+                if len(schedule) > 1:
+                    data.schedule[date].append(Schedule(
+                        date=Date(
+                            time=schedule[0],
+                            friequency=schedule[1]
+                        ),
+                        auditorium=schedule[2],
+                        group=remove_spaces(schedule[3]),
+                        discipline=schedule[4],
+                        teacher=remove_spaces(schedule[5])
+                    ))   
+        return data
     
 
     @staticmethod
