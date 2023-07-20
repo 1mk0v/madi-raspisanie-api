@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from datetime import datetime, timedelta
 from .departments import get_department_groups_schedule
+from .groups import get_groups as get_groups_ids
+from .groups import get_group_schedule
 router = APIRouter(prefix='/asu', tags=['ASU'])
 
 from routers import week_days
@@ -27,4 +29,21 @@ async def get_groups():
         
 
     print(datetime.now().time().__str__())
+    return info
+
+
+@router.get('/test')
+async def get_test():
+
+    info = dict()
+
+    groups = await get_groups_ids()
+
+    for i in groups:
+        try:
+            await get_group_schedule(i)
+            print(i, "success")
+        except Exception as error:
+            info[i] = error.__dict__
+            print(i, "fail")
     return info
