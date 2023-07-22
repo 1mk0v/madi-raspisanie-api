@@ -23,7 +23,7 @@
 ############################################################################################################
 
 from .models import *
-
+from bs4 import BeautifulSoup as bs
 
 def remove_spaces(string: str) -> str():
 
@@ -35,7 +35,6 @@ def remove_spaces(string: str) -> str():
     if len(data) > 0 and data[len(data)-1] == ' ':
         data = data[:-1]
     return data
-
 
 def remove_garbage(string: str, symbols: list = []) -> str():
 
@@ -49,6 +48,11 @@ def remove_garbage(string: str, symbols: list = []) -> str():
     name = remove_spaces(name)
     return name
 
+def delete_empty_elements(array: List[str]) -> List[str]:
+    if array[0] == '' and array[len(array)-1] == '':
+        array.pop(0)
+        array.pop(len(array) - 1)
+    return array
 
 def set_selectors(html: str) -> list():
 
@@ -69,159 +73,57 @@ class Teacher:
     
     def __init__(self) -> None:
         pass
-
+        
 
     @staticmethod
-    def exam_schedule(html: str, teacher_name:str = None) -> Exam_Info:
+    def exam_schedule(html: bs, teacher_name:str = None) -> Exam_Info:
 
         """Parsing a table with a group class schedule"""
 
         data = Exam_Info(name=teacher_name ,exam=list())
-        for tag in html:
-            try:
-                if tag.th.text:
-                    continue
-            except:
-                exam_info: list = tag.text.split('\n')
-                if exam_info[0] == '' and exam_info[len(exam_info)-1] == '':
-                    exam_info.pop(0)
-                    exam_info.pop(len(exam_info) - 1)
-                if len(exam_info) > 0:
-                    exam_date_time = exam_info[1].split(' ')
-                    data.exam.append(Schedule(
-                        date=Date(
-                            day=exam_date_time[0],
-                            time=exam_date_time[1]
-                        ),
-                        group=exam_info[0],
-                        discipline=exam_info[3],
-                        auditorium=exam_info[2]
-                    ))
+        tr:bs = html.find_all('tr')
+        for element in tr:
+            exam = delete_empty_elements(element.get_text().split('\n')) 
+            if 'Группа' not in exam[0] and len(exam) > 3:
+                exam_date_time = exam[1].split(' ')
+                data.exam.append(Schedule(
+                    date=Date(
+                        day=exam_date_time[0],
+                        time=exam_date_time[1]
+                    ),
+                    group=exam[0],
+                    discipline=exam[3],
+                    auditorium=exam[2]
+                ))
 
         return data
 
 
     @staticmethod
-    def get_schedule(html: str, teacher_name:str = None) -> Schedule_Info:
+    def get_schedule(html: bs, teacher_name:str = None) -> Schedule_Info:
 
         """Parsing a table with a ASU exam schedule"""
-
+        
         data = Schedule_Info(sorted_by=teacher_name ,schedule={})
         date = 0
-        for tag in html:
-            try:
-                if tag.b.text:
-                    continue
-            except:
-                schedule: list = tag.text.split('\n')
-                if schedule[0] == '' and schedule[len(schedule)-1] == '':
-                    schedule.pop(0)
-                    schedule.pop(len(schedule) - 1)
-                if len(schedule) == 1:
-                    date = remove_garbage(schedule[0])
-                    data.schedule[date] = list()
-                if len(schedule) > 1:
-                    data.schedule[date].append(Schedule(
-                        group=remove_spaces(schedule[1]),
-                        discipline=schedule[2],
-                        date=Date(
-                            friequency=schedule[4],
-                            time=schedule[0]
-                        ),
-                        type=schedule[3],
-                        auditorium=schedule[5]))
-        return data
-
-
-class Group:
-
-    """
-        Parsing methods for group object
-    """
-    def __init__(self) -> None:
-        pass
-
-
-    @staticmethod
-    def schedule(html: str, group_name: str = None) -> Schedule_Info:
-        #TODO
-        """
-        Parsing a table with a group exam schedule \n
-        Have error on 8744 8745 8746 8748 ID's
-        """
-
-        data = Schedule_Info(name=group_name, schedule={})
-        currentDay: str
-        for tag in html:
-            try:
-                currentDay = remove_garbage(tag.th.text)
-                data.schedule[currentDay] = list()
-            except:
-                schedule:list = tag.text.split('\n')
-                if schedule[0] == '' and schedule[len(schedule)-1] == '':
-                    schedule.pop(0)
-                    schedule.pop(len(schedule) - 1)
-                if len(schedule) > 1 and schedule[0] != 'Время занятий':
-                    try:
-                        data.schedule[currentDay].append(Schedule(
-                            date=Date(
-                                time=schedule[0],
-                                friequency=schedule[3]
-                            ),
-                            discipline=schedule[1],
-                            type=remove_garbage(schedule[2]),
-                            auditorium=schedule[4],
-                            teacher=remove_spaces(schedule[5])
-                            )
-                        )
-                    except:
-                        data.schedule[currentDay].append(Schedule(
-                            date=Date(
-                                friequency=schedule[2],
-                                day=schedule[0]
-                            ),
-                            discipline=schedule[1]
-                        )
-                    )
-                    # else:
-                    #     print(schedule)
-                    #     if len(schedule) == 1:
-                    #         length = len(data.schedule[currentDay]) - 1
-                    #         if type(data.schedule[currentDay][length].discipline) == str:
-                    #             added_discipline = data.schedule[currentDay][length].discipline
-                    #             data.schedule[currentDay][length].discipline = list(added_discipline)
-                    #         else:
-                    #             data.schedule[currentDay][length].discipline.append(schedule[0])
-                       
-        return data
-
-
-    @staticmethod
-    def exam_schedule(html: str, group_name:str = None) -> Exam_Info:
-        """Parsing a table with a group class schedule"""
-
-        data = Exam_Info(name=group_name, exam=list())
-        for tag in html:
-            try:
-                if tag.th.text:
-                    continue
-            except:
-                exam_info: list = tag.text.split('\n')
-                if exam_info[0] == '' and exam_info[len(exam_info)-1] == '':
-                    exam_info.pop(0)
-                    exam_info.pop(len(exam_info) - 1)
-                if len(exam_info) > 0:
-                    exam_date_time = exam_info[1].split(' ')
-                    data.exam.append(Schedule(
-                        date=Date(
-                            day=exam_date_time[0],
-                            time=exam_date_time[1]
-                            ),
-                        discipline=exam_info[0],
-                        auditorium=exam_info[2],
-                        teacher=remove_garbage(exam_info[3], ['..'])
-                    ))
-
+        tr:List[bs] = html.find_all('tr')
+        for element in tr:
+            schedule = delete_empty_elements(element.get_text().split('\n'))
+            week = element.find('th')
+            if week != None and week.attrs['colspan'] == '6':
+                date = remove_garbage(schedule[0])
+                data.schedule[date] = list()
+            if len(schedule) > 1:
+                data.schedule[date].append(Schedule(
+                    group=remove_spaces(schedule[1]),
+                    discipline=schedule[2],
+                    date=Date(
+                        friequency=schedule[4],
+                        time=schedule[0]
+                    ),
+                    type=schedule[3],
+                    auditorium=schedule[5]))
+                
         return data
 
 

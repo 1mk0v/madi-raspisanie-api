@@ -1,9 +1,10 @@
 import requests
 from bs4 import BeautifulSoup as bs
-from Madi_parsing_module.main import Group, remove_garbage, remove_spaces, set_selectors
+from Madi_parsing_module.groups import Group, remove_spaces
 from Madi_parsing_module.models import *
 from routers import request_url
 
+from database.database import database
 from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix='/group', tags=['Groups'])
 
@@ -29,8 +30,10 @@ async def get_groups_id(name:str=None, names:list=list()):
             continue
     return data
 
+
 @router.get('/')
 async def get_groups() -> Dict[str,str]:
+
     """Returns all ID's of groups and their names"""
 
     data = dict()
@@ -95,8 +98,7 @@ async def get_group_schedule(id:int):
     return data.dict(exclude_none=True)
 
 
-# @router.post('/add')
-# async def add_group(id: int):
-#     """Add group by id"""
-    
-#     pass
+@router.post('/add/{id}')
+async def add_group(id: int):
+    """Add group by id"""
+    pass

@@ -18,7 +18,7 @@ app.add_middleware(
 
 app.include_router(teachers.router)
 app.include_router(groups.router)
-app.include_router(asu.router)
 app.include_router(departments.router)
 app.include_router(schedule.router)
+app.include_router(asu.router)
 app.include_router(database.router)

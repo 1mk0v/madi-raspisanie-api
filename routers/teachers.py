@@ -3,7 +3,7 @@ from routers import get_current_year, get_current_sem
 
 import requests
 from bs4 import BeautifulSoup as bs
-from Madi_parsing_module.main import Teacher, remove_garbage, remove_spaces, set_selectors
+from Madi_parsing_module.main import Teacher, remove_spaces
 from typing import Annotated
 
 
@@ -129,4 +129,9 @@ async def get_teacher_schedule(id: int,
     name = (await get_teacher_name(id))
     data = Teacher.get_schedule(html=tables[1], teacher_name=name[str(id)])
 
-    return data.dict
+    return data.dict(exclude_none=True)
+
+
+@router.post('/{id}')
+async def add_teacher(id:int):
+    pass

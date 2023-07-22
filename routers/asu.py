@@ -3,10 +3,11 @@ from datetime import datetime, timedelta
 from .departments import get_department_groups_schedule
 from .groups import get_groups as get_groups_ids
 from .groups import get_group_schedule
+from .teachers import get_all_teachers
 router = APIRouter(prefix='/asu', tags=['ASU'])
-
-from routers import week_days
-
+from bs4 import BeautifulSoup as bs 
+from routers import week_days, request_url
+import requests
 ASU_ID = 61
 
 
@@ -35,15 +36,25 @@ async def get_groups():
 @router.get('/test')
 async def get_test():
 
-    info = dict()
 
-    groups = await get_groups_ids()
+    groups = await get_all_teachers()
 
-    for i in groups:
+    for id in groups:
         try:
-            await get_group_schedule(i)
-            print(i, "success")
-        except Exception as error:
-            info[i] = error.__dict__
-            print(i, "fail")
-    return info
+  
+            response = requests.post(request_url.format("tableFiller.php"),
+                             data={'tab': '8',
+                                   'tp_year': f'{2}',
+                                   'sem_no': f'{22}',
+                                   'pr_id': f'{id}'})
+            with open(f'tmp/teacher/exam/exam_{id}.txt', 'w+') as f:
+                f.write(response.text)
+                f.close
+
+            print(id, "success")
+        except Exception as e:
+            print(e)
+            print(id, "fail")
+
+    return {'message':'ok'}
+

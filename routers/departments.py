@@ -144,10 +144,7 @@ async def get_department_groups_schedule(id:int,
     
     schedule = Department.groups_schedule(table[1])
 
-    if len(schedule) == 0:
-        raise HTTPException(404) 
-    
-    return {'schedule':schedule}
+    return schedule
 
 
 @router.get('/{id}/exams')

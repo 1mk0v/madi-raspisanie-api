@@ -13,6 +13,8 @@ week_days = {
     "7":"Полнодневные занятия"
 }
 
+
+
 def get_current_year() -> int():
 
     """Return current year"""
