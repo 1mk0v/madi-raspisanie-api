@@ -1,104 +1,58 @@
-import requests
-from bs4 import BeautifulSoup as bs
-from Madi_parsing_module.groups import Group, remove_spaces
-from Madi_parsing_module.models import *
-from routers import request_url
+from MADI.main import  remove_spaces
+from MADI.my_requests import Groups as group_req
+from MADI.groups import Group
 
 from database.database import database
 from fastapi import APIRouter, HTTPException
+
 router = APIRouter(prefix='/group', tags=['Groups'])
 
-
-async def get_groups_id(name:str=None, names:list=list()): 
-
-    groups = await get_groups()
-    if len(names) == 0 and name == None:
-        raise Exception()
-
-    
-    names.append(name)    
-
-    data = dict()
-    val_list = list(groups.values())
-    key_list = list(groups.keys())
-
-    for name in names:
-        try:     
-            position = val_list.index(name)
-            data[key_list[position]] = name
-        except: 
-            continue
-    return data
+groups_req = group_req()
 
 
 @router.get('/')
-async def get_groups() -> Dict[str,str]:
+async def get_groups():
 
-    """Returns all ID's of groups and their names"""
-
+    """
+    Returns all ID's of groups and their names
+    """
     data = dict()
-    response = requests.get(request_url.format('task3,7_fastview.php'))
-    html = bs(response.text, 'lxml').find_all('li')
+    try:
+        html = await groups_req.get()
+    except Exception as error:
+        return HTTPException(404, detail=error.args[0])
+    
     for tag in html:
         data[tag['value']] = remove_spaces(tag.text)
     return data
 
 
-@router.get('/{id}')
-async def get_group_name(id: str) -> Dict[str, str]:
+@router.get('/{id}/schedule/')
+async def get_group_schedule(id:int, sem:int = None, year:int = None, name:str = None):
 
-    """Returns id of group by their name"""
-    groups: dict = await get_groups()
+    """
+    Returns JSON schudule of group by id
+    """
 
     try:
-        data = {str(id): groups[str(id)]}
-    except:
-        raise HTTPException(404, detail='Not found')
-
+        html = await groups_req.get_schedule(id, sem, year, name)
+    except Exception as error:
+        return HTTPException(404, detail=error.args[0])
+    
+    data = Group.schedule(html=html, group_name=name)
     return data
 
 
 @router.get('/{id}/exam/')
-async def get_group_exams(id: int):
+async def get_group_exams(id: int, sem:int, year:int, name:str = None):
 
-    """Returns JSON exams of group by id"""
-
-    response = requests.post(request_url.format("tableFiller.php"),
-                             data={'tab': '3',
-                                   'gp_id': f'{id}'})
+    """
+    Returns JSON exams of group by id
+    """
+    try:
+        html = await groups_req.get_exam(id,sem, year, name)
+    except Exception as error:
+        return HTTPException(404, detail=error.args[0])
     
-    html = bs(response.text, 'lxml')
-    tables = html.find_all('table')
-
-    if len(tables) == 0:
-        raise HTTPException(404, detail=html.text)
-
-    data = Group.exam_schedule(html=tables[1])
-
-    return data.dict(exclude_none=True)
-
-
-@router.get('/{id}/schedule/')
-async def get_group_schedule(id:int):
-
-    """Returns JSON schudule of group by id"""
-
-    response = requests.post(request_url.format("tableFiller.php"), 
-                             data={'tab':'7', 'gp_id':f'{id}'})
-    html = bs(response.text, 'lxml')
-    tables = html.find_all('table')
-
-    if len(tables) == 0:
-        return HTTPException(404, detail=html.text)
-    
-    group_name = (await get_group_name(str(id)))
-
-    data = Group.schedule(html=tables[1], group_name=group_name[str(id)])
-
-    return data.dict(exclude_none=True)
-
-
-@router.post('/add/{id}')
-async def add_group(id: int):
-    """Add group by id"""
-    pass
+    data = Group.exam_schedule(html=html)
+    return data
