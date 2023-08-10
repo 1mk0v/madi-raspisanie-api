@@ -2,6 +2,20 @@
 from typing import Dict, List
 from pydantic import BaseModel, BaseConfig
 
+class Essence(BaseModel):
+    id:int
+    department_id:int | None = None
+    value:str
+
+class Group(Essence):
+    pass
+
+class Teacher(Essence):
+    pass
+
+class Department(Essence):
+    pass
+
 class Time(BaseModel):
     start:str
     end:str

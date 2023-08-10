@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup as bs
-from .models import *
+from .models import Schedule, Schedule_Info, Exam_Info, Date
+from typing import List
 from .main import delete_empty_elements, remove_garbage
 
 
@@ -16,7 +17,7 @@ class Group:
 
 
     @staticmethod
-    def schedule(html: bs, group_name: str = None) -> Schedule_Info:
+    def schedule(html: bs, group_name:str = None) -> Schedule_Info:
         #TODO
 
         """
