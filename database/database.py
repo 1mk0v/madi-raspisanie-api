@@ -1,15 +1,15 @@
 from fastapi import APIRouter
-from .schemas import database
+from .schemas import database as db
 
 router = APIRouter()
 
 
 @router.on_event("startup")
 async def startup():
-    await database.connect()
+    await db.connect()
 
 
 @router.on_event("shutdown")
 async def shutdown():
-    await database.disconnect()
+    await db.disconnect()
 

@@ -2,16 +2,19 @@ from MADI.main import  remove_spaces
 from MADI.my_requests import Groups as group_req
 from MADI.groups import Group
 from MADI.models import Group as Group_Model
-
+from database.interfaces.group import DB_Groups
+import time
 from typing import List
-from database.database import database
-from database.schemas import group
 from fastapi import APIRouter, HTTPException, exceptions
 from requests import exceptions
 router = APIRouter(prefix='/group', tags=['Groups'])
 
 groups_req = group_req()
 
+async def generator():
+    html = await groups_req.get()
+    for element in html:
+        yield {'id':element['value'], 'name':remove_spaces(element.text)}
 
 @router.get('/',
             responses={
@@ -29,16 +32,15 @@ async def get_groups():
     """
     
     try:
-        html = await groups_req.get()
+        names = generator()
     except exceptions.ConnectionError:
-        query = group.select()
-        return await database.fetch_all(query)
+        return await DB_Groups.get_all()
     except ValueError:
         return HTTPException(404)
     
     data = list()
-    for tag in html:
-        data.append(Group_Model(id=tag['value'], value=tag.text))
+    async for item in names:
+        data.append(Group_Model(id=item['id'], value=item['name']))
     return data
 
 
@@ -81,8 +83,19 @@ async def get_group_exams(id: int, sem:int, year:int, name:str = None):
 
 @router.post('/add')
 async def add_group(name:str):
-    query = group.insert().values(name=name)
-    last_record_id = await database.execute(query)
-    return {
-        last_record_id:name
-    }
+    return await DB_Groups.add(name)
+
+
+@router.post('/add-all')
+async def add_all_groups():
+    groups = list()
+    names = generator()
+    async for i in names:
+        groups.append({'name':i})
+    return await DB_Groups.add_list(groups)
+
+
+@router.delete('/delete/{id}')
+async def delete_group(id:int):
+    return await DB_Groups.delete(id)
+    

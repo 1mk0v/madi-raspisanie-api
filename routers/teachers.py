@@ -1,11 +1,10 @@
 from MADI.my_requests import Teachers as teacher_reqs
 from MADI.models import Teacher as Teacher_model
 from MADI.teacher import Teacher
+from database.interfaces.teachers import DBTeacher
 from MADI.main import remove_spaces
 from typing import Annotated, List
 from requests import exceptions
-from database.database import database
-from database.schemas import teacher
 from fastapi import APIRouter, HTTPException, Path
 
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
@@ -35,13 +34,9 @@ async def get_all_teachers(
     try:
         html = await teachers_req.get(year, sem)
     except exceptions.ConnectionError:
-        query = teacher.select()
-        return await database.fetch_all(query)
+        return await DBTeacher.get_all()
     except ValueError:
         return HTTPException(404)
-    
-    if len(html) == 0:
-        raise HTTPException(404, detail=html.text)
     
     data = list()
     for element in html:
@@ -61,10 +56,10 @@ async def get_teacher_schedule(id: int,
 
     try:
         html = await teachers_req.get_schedule(id, year, sem)
+    except exceptions.ConnectionError:
+        return  HTTPException(502)
     except ValueError:
         return HTTPException(404)
-    except exceptions.ConnectionError:
-        return HTTPException(502)
     
     data = Teacher.get_schedule(html=html)
 
@@ -94,8 +89,8 @@ async def get_teacher_exam(id: int,
 
 @router.post('/add')
 async def add_teacher(name:str):
-    query = teacher.insert().values(name=name)
-    last_record_id = await database.execute(query)
-    return {
-        last_record_id:name
-    }
+    return await DBTeacher.add(name)
+
+@router.delete('/delete/{id}')
+async def delete_teacher(id:int):
+    return await DBTeacher.delete(id)

@@ -21,8 +21,8 @@
 #                                        Developed by Potapchuk D.A.                                       #
 #                                                                                                          #
 ############################################################################################################
-
-from .models import *
+from typing import List
+from datetime import datetime
 from bs4 import BeautifulSoup as bs
 
 def remove_spaces(string: str) -> str():
@@ -53,3 +53,27 @@ def delete_empty_elements(array: List[str]) -> List[str]:
         array.pop(0)
         array.pop(len(array) - 1)
     return array
+
+
+def get_current_year() -> int():
+
+    """Return current year"""
+
+    current_academic_year:int = int(datetime.today().strftime("%Y"))-2001 
+    current_month = int(datetime.today().strftime("%m"))
+    if current_month > 8:
+        current_academic_year -= 1
+
+    return current_academic_year
+
+
+def get_current_sem() -> int():
+
+    """Return current semester"""
+    
+    current_sem = 2
+    current_month = int(datetime.today().strftime("%m"))
+    if current_month > 8:
+        current_sem = 1
+
+    return current_sem
