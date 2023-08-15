@@ -22,8 +22,7 @@
 #                                                                                                          #
 ############################################################################################################
 from typing import List
-from datetime import datetime
-from bs4 import BeautifulSoup as bs
+from datetime import datetime, timedelta
 
 def remove_spaces(string: str) -> str():
 
@@ -77,3 +76,14 @@ def get_current_sem() -> int():
         current_sem = 1
 
     return current_sem
+
+
+def convert_to_dict_time(lesson_time:str) -> dict:
+    lesson_time = lesson_time.split(' - ')
+    result  = {
+        "start":datetime.time(datetime.strptime(lesson_time[0],'%H:%M')) ,
+        "end": datetime.time(datetime.strptime(lesson_time[0],'%H:%M') + timedelta(hours=3))
+    }
+    if len(lesson_time) >= 2:
+        result["end"] = datetime.time(datetime.strptime(lesson_time[1],'%H:%M'))
+    return result

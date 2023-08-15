@@ -5,6 +5,12 @@ URL = 'https://raspisanie.madi.ru/tplan/tasks/{}'
 
 class Site():
 
+    """
+        Методы для составления запросов с сайта МАДИ
+
+        Актуальный сайт на 2023 год https://raspisanie.madi.ru/tplan
+    """
+
     def __init__(self) -> None:
         pass
 
@@ -27,10 +33,25 @@ class Site():
 
 class Groups(Site):
 
+    """
+        Методы для получения данных с сайта МАДИ относительно группы
+
+        * `get` - вернет все группы на данный учебный год
+        * `get_schedule`- вернет расписание определенной группы 
+        * `get_exam` - вернет расписание экзаменов определенной группы
+
+    """
+
     def __init__(self) -> None:
         super().__init__()
 
     async def get(self) -> bs:
+        """
+        Use get request of `requests` and `bs4` libs
+
+        Returns:
+            bs
+        """
         response = self._get(
             url='task3,7_fastview.php'
             )
@@ -73,8 +94,14 @@ class Groups(Site):
 
 class Teachers(Site):
     
+    """
+        Use get request of `requests` and `bs4` libs
+
+        Returns:
+            bs
+    """
     def __init__(self) -> None:
-        pass
+        super().__init__()
 
     async def get(self, year:int, sem:int) -> bs: 
         response = self._post(

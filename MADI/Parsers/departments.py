@@ -1,5 +1,5 @@
-from .main import remove_spaces, remove_garbage
-from .models import *
+from MADI.main import remove_spaces, remove_garbage
+from MADI.models import *
 
 class Department:
     def __init__(self) -> None:
@@ -24,10 +24,11 @@ class Department:
                 if len(exam_info) == 1:
                     date = exam_info[0]
                 if len(exam_info) > 1:
+                    time = exam_info[1].split('-')
                     data.exam.append(Schedule(
                         date=Date(
                             day=date,
-                            time=exam_info[1]
+                            time=Time(start=time[0], end=time[1])
                         ),
                         group=remove_spaces(exam_info[0]),
                         discipline=exam_info[2],
@@ -63,7 +64,7 @@ class Department:
                         group=remove_spaces(schedule[3]),
                         discipline=schedule[4],
                         teacher=remove_spaces(schedule[5])
-                    ))   
+                    ))
         return data
     
 

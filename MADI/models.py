@@ -1,35 +1,35 @@
 
 from typing import Dict, List
-from pydantic import BaseModel, BaseConfig
+from pydantic import BaseModel
+import datetime
 
 class Essence(BaseModel):
     id:int
-    department_id:int | None = None
     value:str
-
-class Group(Essence):
-    pass
-
-class Teacher(Essence):
-    pass
 
 class Department(Essence):
     pass
 
+class Group(Essence):
+    department_id:int | None = None
+
+class Teacher(Essence):
+    department_id:int | None = None
+
 class Time(BaseModel):
-    start:str
-    end:str
+    start:datetime.time
+    end:datetime.time | None = None
 
 class Date(BaseModel):
     #TODO - change types
     day:str | None = None
     friequency: str | None = None
-    time:str | None = None
+    time:Time | None = None
 
 
 class Schedule(BaseModel):
     date: Date
-    discipline:str | List
+    discipline:str | List = None
     type:str | None = None
     group:str | None = None 
     teacher:str | None = None
