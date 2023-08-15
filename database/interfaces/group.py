@@ -1,12 +1,12 @@
-from . import Main
+from . import Interface
 from MADI.models import Group
 from database.schemas import group
 
 
-class GroupsDB(Main):
+class GroupsDB(Interface):
     pass
 
-DB_Groups = GroupsDB(
+DBGroups = GroupsDB(
     model=Group,
     schema=group
     )

@@ -1,8 +1,9 @@
-from . import Main
-from database.schemas import teacher
+from . import Interface
 from MADI.models import Teacher
+from database.schemas import teacher
 
-class TeacherDB(Main):
+
+class TeacherDB(Interface):
     pass
 
 DBTeacher = TeacherDB(
