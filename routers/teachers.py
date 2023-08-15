@@ -1,6 +1,6 @@
-from MADI.my_requests import Teachers as teacher_reqs
+from MADI.Requests.requests import Teachers as teacher_requests
 from MADI.models import Teacher as Teacher_model
-from MADI.teacher import Teacher
+from MADI.Parsers.teacher import Teacher
 from database.interfaces.teachers import DBTeacher
 from MADI.main import remove_spaces
 from typing import Annotated, List
@@ -9,15 +9,12 @@ from fastapi import APIRouter, HTTPException, Path
 
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
 
-teachers_req = teacher_reqs()
+teachers_req = teacher_requests()
 
 @router.get('/',
             responses={
                 200:{
                     "model":List[Teacher_model]
-                },
-                404:{
-                    "model":None #TODO
                 }
             })
 async def get_all_teachers(
@@ -25,7 +22,7 @@ async def get_all_teachers(
 # year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year():
     sem:int,
     year: int
-    ):
+):
 
     """
     Returns the id and names of teachers in MADI
@@ -48,9 +45,11 @@ async def get_all_teachers(
 
 
 @router.get('/{id}/schedule/')
-async def get_teacher_schedule(id: int,
-                               sem: int,
-                               year:int):
+async def get_teacher_schedule(
+    id:int,
+    sem:int,
+    year:int
+):
 
     """Returns JSON teacher schudule"""
 
@@ -67,9 +66,11 @@ async def get_teacher_schedule(id: int,
 
 
 @router.get('/{id}/exam/')
-async def get_teacher_exam(id: int,
-                           sem: int,
-                           year: int):
+async def get_teacher_exam(
+    id:int,
+    sem:int,
+    year:int
+):
 
     """
     Returns JSON exam of teacher by id and year
@@ -88,8 +89,12 @@ async def get_teacher_exam(id: int,
 
 
 @router.post('/add')
-async def add_teacher(name:str):
-    return await DBTeacher.add(name)
+async def add_teacher(
+    name:str,
+    id:int = None
+):
+    return await DBTeacher.add(id=id, name=name)
+    
 
 @router.delete('/delete/{id}')
 async def delete_teacher(id:int):
