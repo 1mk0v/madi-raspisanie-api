@@ -116,7 +116,7 @@ class Teachers(Site):
             )
         return self._is_Empty(
             response=response,
-            page_element='option',
+            page_element='option'
         )
 
     async def get_schedule(self, id:int, year:int, sem:int) -> bs:

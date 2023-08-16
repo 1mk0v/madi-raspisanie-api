@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as bs
 from MADI.models import *
 from MADI.main import * 
 
-class Parse:
+class Generators:
 
     @staticmethod
     def schedule(html: bs):

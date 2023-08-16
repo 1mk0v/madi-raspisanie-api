@@ -1,26 +1,22 @@
 from bs4 import BeautifulSoup as bs
-from .schedule import Parse
+from .schedule import Generators
 from MADI.models import *
 from MADI.main import *
 
-class Teacher(Parse):
+class Teacher():
     
     """
         Teacher parsing methods
     """
-
-
-    def __init__(self) -> None:
-        pass
         
     @staticmethod
     def get_schedule(html: bs, teacher_name:str = None) -> Schedule_Info:
 
-        """Parsing a table with a ASU exam schedule"""
+        """Parsing HTML table of schedule"""
         
         data = Schedule_Info(sorted_by=teacher_name ,schedule={})
         schedule:List
-        for lesson in Parse.schedule(html):
+        for lesson in Generators.schedule(html):
             if len(lesson) == 1:
                 data.schedule[lesson[0]] = list()
                 schedule = data.schedule[lesson[0]]
@@ -45,7 +41,7 @@ class Teacher(Parse):
         """Parsing a table with a group class schedule"""
 
         data = Exam_Info(name=teacher_name ,exam=list())
-        for exam in Parse.exam(html):
+        for exam in Generators.exam(html):
             exam_date_time = exam[1].split(' ')
             time = convert_to_dict_time(exam_date_time[1])
             data.exam.append(Schedule(

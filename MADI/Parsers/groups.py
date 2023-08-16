@@ -1,10 +1,8 @@
 from bs4 import BeautifulSoup as bs
 from MADI.models import Schedule, Schedule_Info, Exam_Info, Date, Time
-from .schedule import Parse
+from .schedule import Generators
 from typing import List
 from MADI.main import remove_garbage, convert_to_dict_time
-
-
 
 class Group:
 
@@ -32,7 +30,7 @@ class Group:
         mode = 0
         schedule:List
         data = Schedule_Info(name=group_name, schedule={})
-        for lesson in Parse.schedule(html):
+        for lesson in Generators.schedule(html):
             if "Полнодневные занятия" in lesson:
                 mode = 1
             elif mode == 0 and len(lesson) == 1:
@@ -87,7 +85,7 @@ class Group:
         """Parsing a table with a group class schedule"""
 
         data = Exam_Info(name=name ,exam=list())
-        for exam in Parse.exam(html):
+        for exam in Generators.exam(html):
             exam_date_time = exam[1].split(' ')
             time = convert_to_dict_time(exam_date_time[1])
             data.exam.append(Schedule(
