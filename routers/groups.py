@@ -33,10 +33,11 @@ async def get_groups():
     
     try:
         html = await groups_req.get()
-    except exceptions.ConnectionError:
-        return await DBGroups.get_all()
-    except ValueError:
-        return HTTPException(404)
+    except (exceptions.ConnectionError, ValueError):
+        try:
+            return await DBGroups.get_all()
+        except ValueError:
+            return HTTPException(404)
     
     data = list()
     async for element in html:
@@ -65,7 +66,7 @@ async def get_group_schedule(
     try:
          html = await groups_req.get_schedule(id, sem, year, name)
     except exceptions.ConnectionError:
-        return  HTTPException(502)
+        return HTTPException(502)
     except ValueError:
         return HTTPException(404)
 

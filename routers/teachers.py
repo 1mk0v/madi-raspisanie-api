@@ -28,12 +28,14 @@ async def get_all_teachers(
     Returns the id and names of teachers in MADI
     """
 
+    #TODO - сократить
     try:
         html = await teachers_req.get(year, sem)
-    except exceptions.ConnectionError:
-        return await DBTeacher.get_all()
-    except ValueError:
-        return HTTPException(404)
+    except (exceptions.ConnectionError, ValueError):
+        try:
+            return await DBTeacher.get_all()
+        except ValueError:
+            return HTTPException(404)
     
     data = list()
     for element in html:
@@ -78,10 +80,11 @@ async def get_teacher_exam(
 
     try:
         html = await teachers_req.get_exam(id, year, sem)
-    except ValueError:
-        return HTTPException(404)
     except exceptions.ConnectionError:
         return HTTPException(502)
+    except ValueError:
+        return HTTPException(404)
+   
 
     data = Teacher.exam_schedule(html=html)
 
