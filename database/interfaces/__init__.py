@@ -14,7 +14,7 @@ class Interface():
             ) -> None:
         self.model = model
         self.schema = schema
-
+        self.db = db
 
     def _is_Empty(self, object):
 
@@ -25,19 +25,23 @@ class Interface():
             or (type(object) == dict and object == dict()) \
             or (type(object) == int and object == 0):
             raise ValueError('The are no elements in table')
-
         return object
 
+
+    async def get_by_value(self, value:str) -> BaseModel:
+        query = self.schema.select().where(self.schema.c.value == value)
+        return self._is_Empty(await db.fetch_one(query))
+    
 
     async def get_all(self) -> List[BaseModel]:
         query = self.schema.select()
         return self._is_Empty(await db.fetch_all(query))
 
 
-    async def add(self, name:str, id:int = None) -> BaseModel:
-        query = self.schema.insert().values(id=id, name=name)
+    async def add(self, value:str, id:int = None) -> BaseModel:
+        query = self.schema.insert().values(id=id, value=value)
         last_record_id = self._is_Empty(await db.execute(query)) 
-        return self.model(id=last_record_id, value=name)
+        return self.model(id=last_record_id, value=value)
 
 
     async def add_list(self, list:List[Dict]):
