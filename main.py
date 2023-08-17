@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import departments, groups, teachers
+from routers import departments, groups, teachers, schedule
 from database import database
 
 app = FastAPI(title='MADI ASU Terminal API')
@@ -18,6 +18,7 @@ app.add_middleware(
 
 app.include_router(teachers.router)
 app.include_router(groups.router)
+app.include_router(schedule.router)
 # app.include_router(departments.router)
 app.include_router(database.router)
 
