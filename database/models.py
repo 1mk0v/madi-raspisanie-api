@@ -1,6 +1,11 @@
 from MADI import models
+from pydantic import BaseModel
 
-class Schedule_Info():
+class Response_Message(BaseModel):
+    id:int
+    detail:str = "Success"
+
+class Schedule_Info(BaseModel):
     weekday_id:int | None = None
     date_id:int | None = None
     lesson_id:int | None = None
