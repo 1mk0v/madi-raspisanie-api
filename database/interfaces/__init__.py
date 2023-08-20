@@ -40,8 +40,7 @@ class Interface():
 
     async def add(self, value:str, id:int = None) -> BaseModel:
         query = self.schema.insert().values(id=id, value=value)
-        last_record_id = self._is_Empty(await db.execute(query)) 
-        return self.model(id=last_record_id, value=value)
+        return self._is_Empty(await db.execute(query))
 
 
     async def add_list(self, list:List[Dict]):

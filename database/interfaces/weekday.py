@@ -1,6 +1,6 @@
 from . import Interface
 from MADI.models import Essence as Weekday
-from database.schemas import teacher
+from database.schemas import week_day
 
 
 class WeekdayDB(Interface):
@@ -8,5 +8,5 @@ class WeekdayDB(Interface):
 
 DBWeekday = WeekdayDB(
     model=Weekday,
-    schema=teacher
+    schema=week_day
 )
