@@ -1,6 +1,10 @@
 from database.interfaces.time import DBTime
 from database.interfaces.frequency import DBFrequency
-from database.interfaces.date import DBDate, Date
+from database.interfaces.date import DBDate
+from database.interfaces.schedule_type import DBType
+from database.interfaces.weekday import DBWeekday
+from database.interfaces.auditorium import DBAuditorium
+from database.interfaces.schedule import DBScheduleInfo
 from database.models import Response_Message
 from sqlalchemy.exc import IntegrityError
 from typing import Annotated
@@ -103,14 +107,90 @@ async def delete_date(id:int):
 
 @router.get('/type/get')
 async def get_type():
-    pass
+    try:
+        return await DBType.get_all()
+    except ValueError:
+        return HTTPException(404)
 
 @router.post('/type/add')
-async def add_type():
-    pass
+async def add_type(value:str):
+    try:
+        last_id = await DBType.add(value=value)
+        return Response_Message(id=last_id)
+    except Exception as error:
+        print(error)
+        res = await DBType.get_by_value(value=value)
+        return Response_Message(id=res['id'], detail='Already add')
 
 @router.delete('/type/delete/{id}')
-async def delete_type():
-    pass
+async def delete_type(id:int):
+    return await DBType.delete(id=id)
 
-#========================================================#
+#========================WEEKDAY=========================#
+
+@router.get('/weekday/get')
+async def get_type():
+    try:
+        return await DBWeekday.get_all()
+    except ValueError:
+        return HTTPException(404)
+
+@router.post('/weekday/add')
+async def add_type(value:str):
+    try:
+        last_id = await DBWeekday.add(value=value)
+        return Response_Message(id=last_id)
+    except Exception as error:
+        print(error)
+        res = await DBWeekday.get_by_value(value=value)
+        return Response_Message(id=res['id'], detail='Already add')
+
+@router.delete('/weekday/delete/{id}')
+async def delete_type(id:int):
+    return await DBWeekday.delete(id=id)
+
+#=======================AUDITORIUM========================#
+
+@router.get('/auditorium/get')
+async def get_type():
+    try:
+        return await DBAuditorium.get_all()
+    except ValueError:
+        return HTTPException(404)
+
+@router.post('/auditorium/add')
+async def add_type(value:str):
+    try:
+        last_id = await DBAuditorium.add(value=value)
+        return Response_Message(id=last_id)
+    except Exception as error:
+        print(error)
+        res = await DBAuditorium.get_by_value(value=value)
+        return Response_Message(id=res['id'], detail='Already add')
+
+@router.delete('/auditorium/delete/{id}')
+async def delete_type(id:int):
+    return await DBAuditorium.delete(id=id)
+
+#======================================================#
+
+@router.get('/auditorium/get')
+async def get_type():
+    try:
+        return await DBAuditorium.get_all()
+    except ValueError:
+        return HTTPException(404)
+
+@router.post('/auditorium/add')
+async def add_type(value:str):
+    try:
+        last_id = await DBAuditorium.add(value=value)
+        return Response_Message(id=last_id)
+    except Exception as error:
+        print(error)
+        res = await DBAuditorium.get_by_value(value=value)
+        return Response_Message(id=res['id'], detail='Already add')
+
+@router.delete('/auditorium/delete/{id}')
+async def delete_type(id:int):
+    return await DBAuditorium.delete(id=id)
