@@ -5,15 +5,20 @@ from database.schemas import schedule_info
 class ScheduleInfoDB(Interface):
 
     async def add(
-        week_id:int,
+        self,
+        weekday_id:int,
         date_id:int,
-        discipline_id:int #TODO
+        discipline_id:int,
+        type_id:int,
+        auditorium_id:int,
     ):
-        #TODO
-        pass
-
-    async def add_list():
-        pass
+        query = self.schema.insert().values(
+            weekday_id=weekday_id,
+            date_id=date_id,
+            discipline_id=discipline_id,
+            type_id=type_id,
+            auditorium_id=auditorium_id)
+        return self._is_Empty(await self.db.execute(query))
     
 
 DBScheduleInfo = ScheduleInfoDB(

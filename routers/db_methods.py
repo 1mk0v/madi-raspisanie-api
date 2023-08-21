@@ -5,8 +5,11 @@ from database.interfaces.schedule_type import DBType
 from database.interfaces.weekday import DBWeekday
 from database.interfaces.auditorium import DBAuditorium
 from database.interfaces.schedule import DBScheduleInfo
+from database.interfaces.discipline import DBDiscipline
+from .teachers import add_teacher
+from .groups import add_group
 from database.models import Response_Message
-from sqlalchemy.exc import IntegrityError
+from MADI.models import Date, Time, Schedule
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, Path, Body
 import datetime
@@ -88,15 +91,14 @@ async def add_date(
             frequency_id=new_frequency.id,
             time_id=new_time.id
             )
-        if res == None:
-            res = await DBDate.add(
+        return Response_Message(id=res['id'], detail="Already add")
+    except Exception as error:
+        last_id = await DBDate.add(
                 day=day,
                 frequency_id=new_frequency.id,
                 time_id=new_time.id
             )
-        return res
-    except Exception as error:
-        print(error)
+        return Response_Message(id=last_id)
 
 @router.delete("/date/delete/{id}")
 async def delete_date(id:int):
@@ -129,37 +131,37 @@ async def delete_type(id:int):
 #========================WEEKDAY=========================#
 
 @router.get('/weekday/get')
-async def get_type():
+async def get_weekday():
     try:
         return await DBWeekday.get_all()
     except ValueError:
         return HTTPException(404)
 
 @router.post('/weekday/add')
-async def add_type(value:str):
+async def add_weekday(value:str):
     try:
         last_id = await DBWeekday.add(value=value)
         return Response_Message(id=last_id)
     except Exception as error:
-        print(error)
+        print("WEEKDAY\n",error)
         res = await DBWeekday.get_by_value(value=value)
         return Response_Message(id=res['id'], detail='Already add')
 
 @router.delete('/weekday/delete/{id}')
-async def delete_type(id:int):
+async def delete_weekday(id:int):
     return await DBWeekday.delete(id=id)
 
 #=======================AUDITORIUM========================#
 
 @router.get('/auditorium/get')
-async def get_type():
+async def get_auditorium():
     try:
         return await DBAuditorium.get_all()
     except ValueError:
         return HTTPException(404)
 
 @router.post('/auditorium/add')
-async def add_type(value:str):
+async def add_auditorium(value:str):
     try:
         last_id = await DBAuditorium.add(value=value)
         return Response_Message(id=last_id)
@@ -169,28 +171,73 @@ async def add_type(value:str):
         return Response_Message(id=res['id'], detail='Already add')
 
 @router.delete('/auditorium/delete/{id}')
-async def delete_type(id:int):
+async def delete_auditorium(id:int):
     return await DBAuditorium.delete(id=id)
 
-#======================================================#
+#=======================DISCIPLINE========================#
 
-@router.get('/auditorium/get')
-async def get_type():
+@router.get('/discipline/get')
+async def get_discipline():
     try:
-        return await DBAuditorium.get_all()
+        return await DBDiscipline.get_all()
     except ValueError:
         return HTTPException(404)
 
-@router.post('/auditorium/add')
-async def add_type(value:str):
+@router.post('/discipline/add')
+async def add_discipline(value:str):
     try:
-        last_id = await DBAuditorium.add(value=value)
+        last_id = await DBDiscipline.add(value=value)
         return Response_Message(id=last_id)
     except Exception as error:
         print(error)
-        res = await DBAuditorium.get_by_value(value=value)
+        res = await DBDiscipline.get_by_value(value=value)
         return Response_Message(id=res['id'], detail='Already add')
 
-@router.delete('/auditorium/delete/{id}')
-async def delete_type(id:int):
-    return await DBAuditorium.delete(id=id)
+@router.delete('/discipline/delete/{id}')
+async def delete_discipline(id:int):
+    return await DBDiscipline.delete(id=id)
+
+#=========================SCHEDULE========================#
+
+@router.get('/schedule/get')
+async def get_schedule():
+    try:
+        return await DBScheduleInfo.get_all()
+    except ValueError:
+        return HTTPException(404)
+
+@router.post('/schedule/add')
+async def add_schedule(
+    weekday:Annotated[str | None, Body()],
+    date:Annotated[Date | None, Body()],
+    discipline:Annotated[str | None, Body()],
+    type:Annotated[str | None, Body()],
+    auditorium:Annotated[str | None, Body()]
+):
+    try:
+        weekday_info = await add_weekday(weekday)
+        date_info = await add_date(
+            day=date.day,
+            frequency=date.friequency,
+            start_time=date.time.start,
+            end_time=date.time.end
+        )
+        discipline_info = await add_discipline(value = discipline)
+        type_info = await add_type(value = type)
+        auditorium_info = await add_auditorium(value = auditorium)
+        print(weekday_info.id, date_info.id, discipline_info.id, type_info.id, auditorium_info.id)
+
+        last_id = await DBScheduleInfo.add(
+            weekday_id=weekday_info.id,
+            date_id=date_info.id,
+            discipline_id=discipline_info.id,
+            type_id=type_info.id,
+            auditorium_id=auditorium_info.id
+        )
+        return Response_Message(id=last_id)
+    except Exception as error:
+        print(error)
+
+@router.delete('/schedule/delete/{id}')
+async def delete_schedule(id:int):
+    return await DBScheduleInfo.delete(id=id)

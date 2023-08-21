@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo 'Creating virtial envirement'
 python3 -m venv env
+echo 'Virtual Envirement is created'
 source env/bin/activate
+echo 'Virtual Envirement is activated'
 pip3 install -r requirements.txt
-
-uvicorn main:app --reload
+echo 'Requirements is installed'

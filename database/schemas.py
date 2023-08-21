@@ -27,7 +27,7 @@ group = Table(
     "group",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
-    Column("department_id", Integer, ForeignKey("department.id")),
+    Column("department_id", Integer, ForeignKey("department.id"), default= None),
     Column("value", String),
 )
 
@@ -35,12 +35,12 @@ teacher = Table(
     "teacher",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
-    Column("department_id", Integer, ForeignKey("department.id")),
+    Column("department_id", Integer, ForeignKey("department.id"), default= None),
     Column("value", String),
 )
 
-week_day = Table(
-    "week_day",
+weekday = Table(
+    "weekday",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
     Column("value", String, unique=True)
@@ -71,7 +71,7 @@ auditorium = Table(
     "auditorium",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
-    Column("department_id", Integer, ForeignKey("department.id")),
+    Column("department_id", Integer, ForeignKey("department.id"), default = None),
     Column("value", String, unique=True)
 )
 
@@ -87,21 +87,20 @@ date = Table(
     "date",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
-    Column("day", String),
-    Column("frequency_id", Integer, ForeignKey("frequency.id")),
-    Column("time_id", Integer, ForeignKey("time.id"))
+    Column("day", String, default= None),
+    Column("frequency_id", Integer, ForeignKey("frequency.id"), default= None),
+    Column("time_id", Integer, ForeignKey("time.id"), default= None)
 )
 
 schedule_info = Table(
     "schedule_info",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
-    Column("week_day_id", Integer, ForeignKey("week_day.id")),
+    Column("weekday_id", Integer, ForeignKey("weekday.id")),
     Column("date_id", Integer, ForeignKey("date.id")),
     Column("discipline_id", Integer, ForeignKey("discipline.id")),
     Column("type_id", Integer, ForeignKey("type.id")),
-    Column("auditorium_id", Integer, ForeignKey("auditorium.id")),
-    Column("teacher_id", Integer, ForeignKey("teacher.id")),
+    Column("auditorium_id", Integer, ForeignKey("auditorium.id"), default= None)
 )
 
 exam_info = Table(
@@ -110,8 +109,7 @@ exam_info = Table(
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
     Column("date_id", Integer, ForeignKey("date.id")),
     Column("discipline_id", Integer, ForeignKey("discipline.id")),
-    Column("auditorium_id", Integer, ForeignKey("auditorium.id")),
-    Column("teacher_id", Integer, ForeignKey("teacher.id"))
+    Column("auditorium_id", Integer, ForeignKey("auditorium.id"))
 )
 
 schedule = Table(
@@ -127,4 +125,5 @@ exam = Table(
     Column("id", Integer, ForeignKey("exam.id")),
     Column("group_id", Integer, ForeignKey("group.id"))
 )
+
 metadata.create_all(engine)

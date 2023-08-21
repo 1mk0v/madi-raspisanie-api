@@ -2,6 +2,7 @@ from MADI.Requests.requests import Teachers as teacher_requests
 from MADI.models import Teacher as Teacher_model
 from MADI.Parsers.teacher import Teacher
 from database.interfaces.teachers import DBTeacher
+from database.models import Response_Message
 from MADI.main import remove_spaces
 from typing import Annotated, List
 from requests import exceptions
@@ -11,12 +12,14 @@ router = APIRouter(prefix='/teacher', tags=['Teachers'])
 
 teachers_req = teacher_requests()
 
-@router.get('/',
-            responses={
-                200:{
-                    "model":List[Teacher_model]
-                }
-            })
+@router.get(
+    '/',
+    responses={
+        200:{
+                "model":List[Teacher_model]
+        }
+    }
+)
 async def get_all_teachers(
 # sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
 # year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year():
@@ -60,7 +63,7 @@ async def get_teacher_schedule(
     except exceptions.ConnectionError:
         return  HTTPException(502)
     except ValueError:
-        return HTTPException(404)
+        raise HTTPException(404)
     
     data = Teacher.get_schedule(html=html)
 
@@ -83,7 +86,7 @@ async def get_teacher_exam(
     except exceptions.ConnectionError:
         return HTTPException(502)
     except ValueError:
-        return HTTPException(404)
+        raise HTTPException(404)
    
 
     data = Teacher.exam_schedule(html=html)
@@ -96,9 +99,16 @@ async def add_teacher(
     name:str,
     id:int = None
 ):
-    return await DBTeacher.add(id=id, name=name)
+    try:
+        last_id = await DBTeacher.add(id=id, value=name)
+        return Response_Message(id=last_id)
+    except:
+        res = await DBTeacher.get_by_value(value=name)
+        return Response_Message(id=res['id'], detail='Already add')
     
 
-@router.delete('/delete/{id}')
-async def delete_teacher(id:int):
+@router.delete('/{id}/delete')
+async def delete_teacher(
+    id:int
+):
     return await DBTeacher.delete(id)

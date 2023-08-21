@@ -1,3 +1,9 @@
+"""_summary_
+
+Yields:
+    _type_: _description_
+"""
+
 from bs4 import BeautifulSoup as bs
 from MADI.models import *
 from MADI.main import * 
