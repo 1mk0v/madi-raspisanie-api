@@ -1,9 +1,9 @@
 from MADI.Requests.requests import Teachers as teacher_requests
-from MADI.models import Teacher as Teacher_model
+from MADI.models import Teacher as Teacher_model, Schedule_Teacher_Info, Exam_Teacher_Info
 from MADI.Parsers.teacher import Teacher
 from database.interfaces.teachers import DBTeacher
 from database.models import Response_Message
-from MADI.main import remove_spaces
+from MADI.main import remove_spaces, get_current_sem, get_current_year
 from typing import Annotated, List
 from requests import exceptions
 from fastapi import APIRouter, HTTPException, Path
@@ -21,10 +21,8 @@ teachers_req = teacher_requests()
     }
 )
 async def get_all_teachers(
-# sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
-# year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year():
-    sem:int,
-    year: int
+    sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+    year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()
 ):
 
     """
@@ -36,7 +34,7 @@ async def get_all_teachers(
         html = await teachers_req.get(year, sem)
     except (exceptions.ConnectionError, ValueError):
         try:
-            return await DBTeacher.get_all()
+            return await DBTeacher.get_by_year(year=year)
         except ValueError:
             return HTTPException(404)
     
@@ -49,11 +47,18 @@ async def get_all_teachers(
     return data
 
 
-@router.get('/{id}/schedule/')
+@router.get(
+        '/{id}/schedule/',
+        responses={
+        200:{
+                "model":Schedule_Teacher_Info
+            }
+        }
+    )
 async def get_teacher_schedule(
     id:int,
-    sem:int,
-    year:int
+    sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+    year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()
 ):
 
     """Returns JSON teacher schudule"""
@@ -70,17 +75,22 @@ async def get_teacher_schedule(
     return data
 
 
-@router.get('/{id}/exam/')
+@router.get(
+        '/{id}/exam/',
+        responses={
+            200:{
+                    "model":Exam_Teacher_Info
+                }
+        }
+    )
 async def get_teacher_exam(
     id:int,
-    sem:int,
-    year:int
+    sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+    year: Annotated[int, Path(ge=19, le=get_current_year())] = get_current_year()
 ):
-
     """
-    Returns JSON exam of teacher by id and year
+        Returns JSON exam of teacher by id and year
     """
-
     try:
         html = await teachers_req.get_exam(id, year, sem)
     except exceptions.ConnectionError:
@@ -89,7 +99,7 @@ async def get_teacher_exam(
         raise HTTPException(404)
    
 
-    data = Teacher.exam_schedule(html=html)
+    data = Teacher.exam_schedule(html=html, teacher=Teacher_model(id=id))
 
     return data
 
@@ -100,11 +110,11 @@ async def add_teacher(
     id:int = None
 ):
     try:
-        last_id = await DBTeacher.add(id=id, value=name)
-        return Response_Message(id=last_id)
+        res = await DBTeacher.get_by_value(value = name)
+        return Response_Message(id = res['id'], detail='Already add')
     except:
-        res = await DBTeacher.get_by_value(value=name)
-        return Response_Message(id=res['id'], detail='Already add')
+        id = await DBTeacher.add(id = id, value = name)
+        return Response_Message(id = id)
     
 
 @router.delete('/{id}/delete')

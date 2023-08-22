@@ -1,12 +1,14 @@
-from MADI.main import remove_spaces
+from MADI.main import remove_spaces, get_current_year, get_current_sem
 from MADI.Requests.requests import Groups as group_req
 from MADI.Parsers.groups import Group
-from MADI.models import Group as Group_Model, Schedule_Info, Exam_Info
+from MADI.models import (
+    Group as Group_Model,
+    Schedule_Group_Info as Schedule,
+    Exam_Group_Info as Exam)
 from database.interfaces.group import DBGroups
-from database.schemas import schedule
 from database.models import Response_Message
-from typing import List
-from fastapi import APIRouter, HTTPException
+from typing import List, Annotated
+from fastapi import APIRouter, HTTPException, Path
 from requests import exceptions
 router = APIRouter(prefix='/group', tags=['Groups'])
 
@@ -29,7 +31,9 @@ async def get_id_by_name(
         }
     }
 )
-async def get_groups():
+async def get_groups(
+    year: Annotated[int, Path(ge=19, le=get_current_year()+1)] = get_current_year()
+):
 
     """
     Returns all ID's of groups and their names
@@ -39,12 +43,12 @@ async def get_groups():
         html = await groups_req.get()
     except (exceptions.ConnectionError, ValueError):
         try:
-            return await DBGroups.get_all()
+            return await DBGroups.get_by_year(year=year)
         except ValueError:
             raise HTTPException(404)
     
     data = list()
-    async for element in html:
+    for element in html:
         data.append(Group_Model(id=element['value'], value=remove_spaces(element.text)))
     return data
 
@@ -53,14 +57,14 @@ async def get_groups():
     '/{id}/schedule/',
     responses={
         200:{
-            "model":Schedule_Info
+            "model":Schedule
         }
     }
 )
 async def get_group_schedule(
     id:int, 
-    sem:int = None, 
-    year:int = None,
+    sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+    year: Annotated[int, Path(ge=19, le=get_current_year()+1)] = get_current_year(),
     name:str = None
 ):
     """
@@ -69,13 +73,12 @@ async def get_group_schedule(
     try:
         html = await groups_req.get_schedule(id, sem, year, name)
     except exceptions.ConnectionError:
-        res = await DBGroups.get_schedule_data(id)
-        print(res)
+        res = await DBGroups.get_schedule(id=id)
         return res
     except ValueError:
         raise HTTPException(404)
 
-    data = Group.schedule(html=html, group_name=name)
+    data = Group.schedule(html=html, group=Group_Model(id=id, value=name))
     return data
 
 
@@ -83,13 +86,13 @@ async def get_group_schedule(
         '/{id}/exam/',
         responses={
         200:{
-            "model":Exam_Info
+            "model":Exam
         }
     })
 async def get_group_exams(
     id:int,
-    sem:int,
-    year:int,
+    sem: Annotated[int, Path(ge=1, le=2)] = get_current_sem(),
+    year: Annotated[int, Path(ge=19, le=get_current_year()+1)] = get_current_year(),
     name:str = None
 ):
 
@@ -104,7 +107,7 @@ async def get_group_exams(
     except ValueError:
         raise HTTPException(404)
     
-    data = Group.exam_schedule(html=html)
+    data = Group.exam_schedule(html=html, group=Group_Model(id=id, value=name))
     return data
 
 
@@ -113,8 +116,12 @@ async def add_group(
     name:str,
     id:int = None,
 ):
-    last_id = await DBGroups.add(id=id,value=name)
-    return Response_Message(id=last_id)
+    try:
+        res = await DBGroups.get_by_value_and_year(value=name)
+        return Response_Message(id = res["id"], detail="Already Add")
+    except: 
+        last_id = await DBGroups.add(id=id,value=name)
+        return Response_Message(id=last_id)
 
 
 @router.delete('/{id}/delete')
