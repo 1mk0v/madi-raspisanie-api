@@ -1,7 +1,11 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import db_methods, departments, groups, teachers, schedule
+from routers import (
+    groups,
+    teachers,
+    schedule
+)
 from database import database
 
 app = FastAPI(
@@ -42,8 +46,8 @@ app.add_middleware(
 app.include_router(teachers.router)
 app.include_router(groups.router)
 app.include_router(schedule.router)
-app.include_router(db_methods.router)
-# app.include_router(departments.router)
+# app.include_router(db_methods.router) #TODO есть ли смысл ее оставлять?
+# app.include_router(departments.router) 
 app.include_router(database.router)
 
 if __name__ == '__main__':
