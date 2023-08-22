@@ -5,7 +5,7 @@ import datetime
 
 class Essence(BaseModel):
     id:int | None = None
-    value:str
+    value:str | None = None 
 
 class Department(Essence):
     pass
@@ -25,21 +25,30 @@ class Date(BaseModel):
     friequency: str | None = None
     time:Time | None = None
 
-
 class Schedule(BaseModel):
-    date: Date
+    date:Date
     discipline:str | List = None
     type:str | None = None
-    group:Group | None = None
-    teacher:Teacher | None = None
     auditorium:str | None = None
 
+class Schedule_Teacher(Schedule):
+    group:Group
 
-class Schedule_Info(BaseModel):
-    name: Teacher | Group | Department | None = None
-    schedule: Dict[str, List[Schedule]]
+class Schedule_Group(Schedule):
+    teacher:Teacher | None = None
 
+class Schedule_Teacher_Info(BaseModel):
+    teacher_info: Teacher | None = None
+    schedule: Dict[str, List[Schedule_Teacher]]
 
-class Exam_Info(BaseModel):
-    name: Teacher | Group | Department | None = None
-    exam: List[Schedule] 
+class Schedule_Group_Info(BaseModel):
+    group_info: Group | None = None
+    schedule: Dict[str, List[Schedule_Group]]
+
+class Exam_Teacher_Info(BaseModel):
+    teacher_info: Teacher | None = None
+    exam: List[Schedule]
+
+class Exam_Group_Info(BaseModel):
+    group_info:  Group | None = None
+    exam: List[Schedule_Group]

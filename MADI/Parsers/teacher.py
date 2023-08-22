@@ -1,6 +1,14 @@
 from bs4 import BeautifulSoup as bs
 from .schedule import Generators
-from MADI.models import Schedule_Info, Schedule, Teacher as Teacher_Model, Group, Date, Time, Exam_Info
+from MADI.models import (
+    Schedule_Teacher_Info,
+    Exam_Teacher_Info,
+    Schedule_Teacher,
+    Teacher as Teacher_Model,
+    Group,
+    Date, 
+    Time
+)
 from MADI.main import *
 
 class Teacher():
@@ -10,15 +18,12 @@ class Teacher():
     """
         
     @staticmethod
-    def get_schedule(html: bs, teacher_name:str = None) -> Schedule_Info:
+    def get_schedule(html: bs, teacher:Teacher_Model = None) -> Schedule_Teacher_Info:
 
         """Parsing HTML table of schedule"""
         
-        data = Schedule_Info(
-            name=Teacher_Model(
-                id = None,
-                value = teacher_name
-            ),
+        data = Schedule_Teacher_Info(
+            teacher_info=teacher,
             schedule=dict()
         )
     
@@ -29,7 +34,7 @@ class Teacher():
                 schedule = data.schedule[lesson[0]]
             else:
                 time=convert_to_dict_time(lesson[0])
-                schedule.append(Schedule(
+                schedule.append(Schedule_Teacher(
                     group=Group(
                         id = None,
                         value = remove_spaces(lesson[1])
@@ -49,22 +54,19 @@ class Teacher():
     
     
     @staticmethod
-    def exam_schedule(html: bs, teacher_name:str = None) -> Exam_Info:
+    def exam_schedule(html: bs, teacher:Teacher_Model) -> Exam_Teacher_Info:
 
         """Parsing a table with a group class schedule"""
 
-        data = Exam_Info(
-            name=Teacher_Model(
-                id = None,
-                value=teacher_name
-            ),
+        data = Exam_Teacher_Info(
+            teacher_info=teacher,
             exam=list()
         )
 
         for exam in Generators.exam(html):
             exam_date_time = exam[1].split(' ')
             time = convert_to_dict_time(exam_date_time[1])
-            data.exam.append(Schedule(
+            data.exam.append(Schedule_Teacher(
                 date = Date(
                     day = exam_date_time[0],
                     time = Time(

@@ -7,7 +7,15 @@
 
 
 from bs4 import BeautifulSoup as bs
-from MADI.models import Schedule, Schedule_Info, Exam_Info, Date, Time, Group as Group_Model
+from MADI.models import (
+    Schedule_Group_Info,
+    Exam_Group_Info,
+    Schedule_Group,
+    Teacher,
+    Date,
+    Time,
+    Group as Group_Model
+)
 from .schedule import Generators
 from typing import List
 from MADI.main import remove_garbage, convert_to_dict_time
@@ -28,7 +36,7 @@ class Group:
 
 
     @staticmethod
-    def schedule(html: bs, group_name:str = None) -> Schedule_Info:
+    def schedule(html: bs, group:Group_Model | str = None) -> Schedule_Group_Info:
 
         """
         Parsing a table with a group exam schedule
@@ -40,11 +48,8 @@ class Group:
 
         mode = 0
         schedule:List
-        data = Schedule_Info(
-            name = Group_Model(
-                id = None,
-                value = group_name
-            ),
+        data = Schedule_Group_Info(
+            group_info = group,
             schedule = dict()
         )
         for lesson in Generators.schedule(html):
@@ -56,7 +61,7 @@ class Group:
             elif mode == 0 and len(lesson) > 1:
                 time=convert_to_dict_time(lesson[0])
                 schedule.append(
-                    Schedule(
+                    Schedule_Group(
                         date = Date(
                             time = Time(
                                 start=time['start'],
@@ -67,13 +72,13 @@ class Group:
                         discipline=lesson[1],
                         type=remove_garbage(lesson[2]),
                         auditorium=lesson[4],
-                        teacher=remove_garbage(lesson[5])
+                        teacher=Teacher(value=remove_garbage(lesson[5]))
                     )
                 )
             elif mode == 1 and len(lesson) == 3:
                 data.schedule[lesson[0]] = list()
                 schedule = data.schedule[lesson[0]]
-                schedule.append(Schedule(
+                schedule.append(Schedule_Group(
                         date=Date(
                             friequency=lesson[2]
                         ),
@@ -85,7 +90,7 @@ class Group:
                 data.schedule[lesson[0]] = list()
                 schedule = data.schedule[lesson[0]]
                 schedule.append(
-                    Schedule(
+                    Schedule_Group(
                         date=Date(
                             friequency=lesson[3]
                         ),
@@ -100,21 +105,18 @@ class Group:
         return data
     
     @staticmethod
-    def exam_schedule(html: bs, name:str = None) -> Exam_Info:
+    def exam_schedule(html: bs, group:Group_Model = None) -> Exam_Group_Info:
 
         """Parsing a table with a group class schedule"""
 
-        data = Exam_Info(
-            name = Group_Model(
-                id = None, 
-                value = name
-            ),
-            exam=list()
+        data = Exam_Group_Info(
+            group_info = group,
+            exam = list()
         )
         for exam in Generators.exam(html):
             exam_date_time = exam[1].split(' ')
             time = convert_to_dict_time(exam_date_time[1])
-            data.exam.append(Schedule(
+            data.exam.append(Schedule_Group(
                 date=Date(
                     day=exam_date_time[0],
                     time=Time(start=time['start'], end=time['end'])
@@ -122,7 +124,7 @@ class Group:
                 type='Экзамен',
                 discipline=exam[0],
                 auditorium=exam[2],
-                teacher=remove_garbage(exam[3], ['..'])
+                teacher=Teacher(value=remove_garbage(exam[3], ['..']))
             ))
 
         return data
