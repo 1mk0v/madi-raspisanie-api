@@ -13,3 +13,4 @@ class Schedule_Info(BaseModel):
     frequency_id:int | None = None
     auditorium_id:int | None = None
     teacher_id:int | None = None
+    group_id:int | None = None

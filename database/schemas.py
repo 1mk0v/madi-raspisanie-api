@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, Boolean, String, Table, ForeignKey, Time
-from typing import List
+from sqlalchemy import Column, Integer, String, Table, ForeignKey, Time, Date
 import databases
 from .models import *
 from sqlalchemy import  MetaData, create_engine
+from MADI.main import get_current_year
 
 DATABASE_URL = "sqlite:///./database/test.db"
 
@@ -27,16 +27,18 @@ group = Table(
     "group",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
-    Column("department_id", Integer, ForeignKey("department.id"), default= None),
+    Column("department_id", Integer, ForeignKey("department.id"), default = None),
     Column("value", String),
+    Column("year", Integer)
 )
 
 teacher = Table(
     "teacher",
     metadata,
-    Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
-    Column("department_id", Integer, ForeignKey("department.id"), default= None),
+    Column("id", Integer, primary_key=True, autoincrement="auto", unique = True),
+    Column("department_id", Integer, ForeignKey("department.id"), default = None),
     Column("value", String),
+    Column("year", Integer)
 )
 
 weekday = Table(
@@ -92,10 +94,12 @@ date = Table(
     Column("time_id", Integer, ForeignKey("time.id"), default= None)
 )
 
-schedule_info = Table(
+schedule = Table(
     "schedule_info",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
+    Column("group_id",Integer, ForeignKey("group.id"), default= None),
+    Column("teacher_id", Integer, ForeignKey("teacher.id"), default= None),
     Column("weekday_id", Integer, ForeignKey("weekday.id")),
     Column("date_id", Integer, ForeignKey("date.id")),
     Column("discipline_id", Integer, ForeignKey("discipline.id")),
@@ -103,27 +107,13 @@ schedule_info = Table(
     Column("auditorium_id", Integer, ForeignKey("auditorium.id"), default= None)
 )
 
-exam_info = Table(
+exam = Table(
     "exam_info",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
     Column("date_id", Integer, ForeignKey("date.id")),
     Column("discipline_id", Integer, ForeignKey("discipline.id")),
     Column("auditorium_id", Integer, ForeignKey("auditorium.id"))
-)
-
-schedule = Table(
-    "schedule",
-    metadata,
-    Column("schedule_id", Integer, ForeignKey("schedule_info.id")),
-    Column("group_id", Integer, ForeignKey("group.id"))
-)
-
-exam = Table(
-    "exam",
-    metadata,
-    Column("id", Integer, ForeignKey("exam.id")),
-    Column("group_id", Integer, ForeignKey("group.id"))
 )
 
 metadata.create_all(engine)
