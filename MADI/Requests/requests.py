@@ -66,20 +66,25 @@ class Groups(Site):
             response=response,
             page_element='li')
 
+    
     async def get_schedule(self, id:int, sem:int, year:int, name:str = None) -> bs:
+        """
+            Чтобы получить новое расписание, нужно убрать с параметров семестр и год.
+            #TODO - исправить данный недочет (от 25.08.23)
+        """
         response = self._schedule(
             data={
                 'tab':'7',
                 'gp_name': f'{name}',
                 'gp_id':f'{id}',
-                'sem_no': f'{sem}',
-                'tp_year': f'{year}'
+                # 'sem_no': f'',
+                # 'tp_year': f''
                 }
             )
         return self._is_Empty(
             response=response,
             page_element='table',
-            detail=f'The are no schedule for group ID {id}'
+            detail=response.text
             )
 
     async def get_exam(self, id:int, sem:int, year:int, name:str= None) -> bs:

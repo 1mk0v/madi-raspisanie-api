@@ -5,7 +5,6 @@
 
 """
 
-
 from bs4 import BeautifulSoup as bs
 from MADI.models import (
     Schedule_Group_Info,
@@ -44,6 +43,8 @@ class Group:
         mode показывает режим заполения расписания где
         * 0 - заполнения обычного расписания
         * 1 - заполнения полнодневных занятий
+        
+        9313 8744 8745 8746 8748 - problems ID's
         """
 
         mode = 0
@@ -76,7 +77,10 @@ class Group:
                     )
                 )
             elif mode == 1 and len(lesson) == 3:
-                data.schedule[lesson[0]] = list()
+                try:
+                    data.schedule[lesson[0]]
+                except:
+                    data.schedule[lesson[0]] = list()
                 schedule = data.schedule[lesson[0]]
                 schedule.append(Schedule_Group(
                         date=Date(
@@ -87,7 +91,10 @@ class Group:
                     )
                 )
             elif mode == 1 and len(lesson) == 4:
-                data.schedule[lesson[0]] = list()
+                try:
+                    data.schedule[lesson[0]]
+                except:
+                    data.schedule[lesson[0]] = list()
                 schedule = data.schedule[lesson[0]]
                 schedule.append(
                     Schedule_Group(

@@ -17,7 +17,7 @@ class Teacher(Essence):
     department_id:int | None = None
 
 class Time(BaseModel):
-    start:datetime.time
+    start:datetime.time | None = None
     end:datetime.time | None = None
 
 class Date(BaseModel):
@@ -32,7 +32,7 @@ class Schedule(BaseModel):
     auditorium:str | None = None
 
 class Schedule_Teacher(Schedule):
-    group:Group
+    group:Group | None = None
 
 class Schedule_Group(Schedule):
     teacher:Teacher | None = None

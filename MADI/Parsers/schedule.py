@@ -12,7 +12,6 @@ class Generators:
 
     @staticmethod
     def schedule(html: bs):
-        #TODO
 
         """
         Parsing a table with a group exam schedule

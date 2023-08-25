@@ -62,7 +62,6 @@ def get_current_year() -> int:
     current_month = int(datetime.today().strftime("%m"))
     if current_month > 8:
         current_academic_year -= 1
-    print('current year =',current_academic_year)
     return current_academic_year
 
 

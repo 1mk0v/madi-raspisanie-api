@@ -6,7 +6,7 @@ from MADI.models import (
     Schedule_Teacher,
     Teacher as Teacher_Model,
     Group,
-    Date, 
+    Date,
     Time
 )
 from MADI.main import *
