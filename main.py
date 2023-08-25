@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import (
     groups,
     teachers,
-    schedule
+    schedule,
+    db_methods
 )
 from database import database
 
@@ -46,7 +47,7 @@ app.add_middleware(
 app.include_router(teachers.router)
 app.include_router(groups.router)
 app.include_router(schedule.router)
-# app.include_router(db_methods.router) #TODO есть ли смысл ее оставлять?
+app.include_router(db_methods.router) #TODO есть ли смысл ее оставлять?
 # app.include_router(departments.router) 
 app.include_router(database.router)
 
