@@ -1,4 +1,4 @@
-from MADI.models import Date, Schedule
+from MADI.models import Schedule, Group, Teacher
 from database.interfaces.schedule import DBScheduleInfo
 from database.models import Response_Message
 from routers.db_methods import (
@@ -6,16 +6,13 @@ from routers.db_methods import (
     add_weekday,
     add_discipline,
     add_type,
-    add_auditorium,
-    add_teacher,
-    add_group)
-
-from database.schemas import schedule
+    add_auditorium)
+from routers.groups import add_group, get_group_schedule, get_groups
+from routers.teachers import add_teacher
 from fastapi import APIRouter, HTTPException, Body
 from typing import Annotated
 
 router = APIRouter(prefix='/schedule', tags=['Schedule'])
-
 
 @router.get('/')
 async def get_schedule():
@@ -24,25 +21,21 @@ async def get_schedule():
     except ValueError:
         return HTTPException(404)
 
-@router.post('/schedule/add')
+@router.post('/add')
 async def add_schedule(
     weekday:Annotated[str | None, Body()],
-    teacher:Annotated[str | None, Body()],
-    group:Annotated[str | None, Body()],
+    teacher:Annotated[Teacher | None, Body()],
+    group:Annotated[Group | None, Body()],
     schedule:Schedule
 ):
+
     weekday_info = await add_weekday(weekday)
-    date_info = await add_date(
-        day=schedule.date.day,
-        frequency=schedule.date.friequency,
-        start_time=schedule.date.time.start,
-        end_time=schedule.date.time.end
-    )
+    date_info = await add_date(schedule.date)
     discipline_info = await add_discipline(value = schedule.discipline)
     type_info = await add_type(value = schedule.type)
     auditorium_info = await add_auditorium(value = schedule.auditorium)
-    teacher_info = await add_teacher(name = teacher)
-    group_info = await add_group(name = group)
+    teacher_info = await add_teacher(teacher=teacher)
+    group_info = await add_group(group=group)
     last_id = await DBScheduleInfo.add(
         weekday_id=weekday_info.id,
         date_id=date_info.id,
@@ -53,6 +46,43 @@ async def add_schedule(
         group_id = group_info.id
     )
     return Response_Message(id=last_id)
+
+
+@router.post('/group/{id}/add')
+async def add_by_group_schedule(
+    id:int,
+    name:str
+):
+    response_list = list()
+    schedule_info = await get_group_schedule(id=id, name=name)
+    schedule = schedule_info.schedule
+    for weekday in schedule:
+        for lesson in schedule[weekday]:
+            response_list.append(await add_schedule(
+                weekday=weekday,
+                teacher=lesson.teacher,
+                group=schedule_info.group_info,
+                schedule=Schedule(
+                    date=lesson.date,
+                    discipline=lesson.discipline,
+                    type=lesson.type,
+                    auditorium=lesson.auditorium
+                )
+            ))
+    return response_list
+
+
+@router.post('/group/add/all')
+async def add_all_groups_schedule():
+    data = await get_groups()
+    print(data)
+    for element in data:
+        print('START ADD SCHEDULE FOR GROUP', element)
+        try:
+            await add_by_group_schedule(id=element.id, name=element.value)
+        except:
+            continue
+        print('END ADD SCHEDULE')
 
 @router.delete('/delete/{id}')
 async def delete_schedule(id:int):
