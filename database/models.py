@@ -2,7 +2,7 @@ from MADI import models
 from pydantic import BaseModel
 
 class Response_Message(BaseModel):
-    id:int
+    id:int | None = None
     detail:str = "Success"
 
 class Schedule_Info(BaseModel):
@@ -14,3 +14,7 @@ class Schedule_Info(BaseModel):
     auditorium_id:int | None = None
     teacher_id:int | None = None
     group_id:int | None = None
+
+class All_Schedule(models.Schedule):
+    teacher:models.Teacher | None = None
+    group:models.Group | None = None

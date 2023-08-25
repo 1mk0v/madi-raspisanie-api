@@ -7,6 +7,9 @@ from pydantic import BaseModel
 
 class Interface():
 
+    """
+        Interface to work with db
+    """
     def __init__(
             self,
             model:BaseModel,
@@ -28,13 +31,13 @@ class Interface():
             raise ValueError('The are no elements in table')
         return object
 
+    async def get_by_column(self, column_name:str, column_value:int | str ) -> BaseModel:
+        query = self.schema.select().where(self.schema.c[column_name] == column_value)
+        return self._is_Empty(await db.fetch_all(query))
+    
     async def get_by_value(self, value:str) -> BaseModel:
         query = self.schema.select().where(self.schema.c.value == value)
         return self._is_Empty(await db.fetch_one(query))
-    
-    async def get_by_year(self, year:int) -> BaseModel:
-        query = self.schema.select().where(self.schema.c.year == year)
-        return self._is_Empty(await db.fetch_all(query))
 
     async def get_all(self) -> List[BaseModel]:
         query = self.schema.select()

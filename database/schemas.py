@@ -101,9 +101,9 @@ schedule = Table(
     Column("group_id",Integer, ForeignKey("group.id"), default= None),
     Column("teacher_id", Integer, ForeignKey("teacher.id"), default= None),
     Column("weekday_id", Integer, ForeignKey("weekday.id")),
-    Column("date_id", Integer, ForeignKey("date.id")),
-    Column("discipline_id", Integer, ForeignKey("discipline.id")),
-    Column("type_id", Integer, ForeignKey("type.id")),
+    Column("date_id", Integer, ForeignKey("date.id"), default = None),
+    Column("discipline_id", Integer, ForeignKey("discipline.id"), default = None),
+    Column("type_id", Integer, ForeignKey("type.id"), default = None),
     Column("auditorium_id", Integer, ForeignKey("auditorium.id"), default= None)
 )
 
