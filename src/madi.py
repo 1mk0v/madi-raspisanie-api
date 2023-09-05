@@ -6,6 +6,7 @@
 """
 
 import requests
+from typing import List
 from bs4 import BeautifulSoup as bs
 
 URL = 'https://raspisanie.madi.ru/tplan/tasks/{}'
@@ -20,17 +21,17 @@ class RaspisanieMADI():
     def __init__(self) -> None:
         pass
 
-    def _get(self, url, data = None) -> requests.Response:
+    def _get(self, url, data:dict = None) -> requests.Response:
         return requests.get(URL.format(url), data)
     
-    def _post(self, url, data:dict = None) -> requests.Response:
+    def _post(self, url, data:dict = None, ) -> requests.Response:
         return requests.post(URL.format(url), data = data)
     
-    def _schedule(self, data) -> requests.Response:
+    def _schedule(self, data:dict) -> requests.Response:
         return self._post(url="tableFiller.php", data=data)
 
-    def _is_Empty(self, response:requests.Response, page_element:str, detail:str='Not found') -> bs:
-        html = bs(response.text, 'lxml').find_all(page_element)
+    def _is_Empty(self, response:requests.Response, page_element:str, class_name:str=None, detail:str='Not found') -> List[bs] | bs:
+        html = bs(response.text, 'lxml').find_all(page_element, class_=class_name)
         if len(html) < 1:
             raise ValueError(detail)
         if page_element == 'table':
@@ -111,7 +112,7 @@ class RaspisanieTeachers(RaspisanieMADI):
     def __init__(self) -> None:
         super().__init__()
 
-    async def get(self, year:int, sem:int) -> bs: 
+    async def get(self, year:int, sem:int) -> List[bs] | bs: 
         response = self._post(
             url = "task8_prepview.php",
             data={
@@ -154,3 +155,63 @@ class RaspisanieTeachers(RaspisanieMADI):
             response=response,
             page_element='table',
             detail=f'The are no schedule for teacher ID {id}')
+
+
+class RaspisanieDepartments(RaspisanieMADI):
+    
+    """
+        Use get request of `requests` and `bs4` libs
+
+        Returns:
+            bs
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    async def get(self) -> bs: 
+        response = self._post(
+            url = "task11_kafview.php",
+            data={
+                'step_no': '1',
+                'task_id': '11',
+                'kaf_presel':''
+                }
+            )
+        return self._is_Empty(
+            response=response,
+            page_element='option'
+        )
+    
+    async def get_teachers(self, id:int, sem:int, year:int):
+        response = self._schedule(
+            data = {
+                'tab':'11',
+                'kf_id': f'{id}',
+                'sort': '1',
+                'tp_year': f'{year}',
+                'sem_no': f'{sem}'
+            }
+        )
+        return self._is_Empty(
+            response=response,
+            page_element='td',
+            class_name='bright'
+        )
+
+    # async def get_groups(self, id:int, sem:int, year:int):
+
+    async def get_schedule(self, id:int, sem:int, year:int):
+        response = self._schedule(
+            data = {
+                'kf_id': f'{id}',
+                'sort': '1',
+                'tp_year': f'{year}',
+                'sem_no': f'{sem}'
+            }
+        )
+        return self._is_Empty(
+            response=response,
+            page_element='table',
+            
+        )

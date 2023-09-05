@@ -66,7 +66,6 @@ async def get_teacher_schedule(
         try:
             teacher = TeacherModel(id=id, value=name)
             schedule = await DBScheduleInfo.get_by_teacher(id=id)
-            print(schedule)
             return Schedule(teacher=teacher, schedule = schedule)
         except ValueError as error:
             raise HTTPException(404, detail=error.args[0])
@@ -97,7 +96,6 @@ async def get_teacher_exam(
         raise HTTPException(502)
     except ValueError:
         raise HTTPException(404)
-   
 
     data = parse_exam(html=html, teacher=TeacherModel(id=id, value=name))
 
