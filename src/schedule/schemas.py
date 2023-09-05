@@ -1,7 +1,4 @@
 from models import Lesson, Group, Teacher
-# from pydantic import BaseModel
-
-
 
 class Schedule(Lesson):
     weekday:str

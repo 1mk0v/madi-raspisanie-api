@@ -7,7 +7,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, status, Depends
 from requests import exceptions
 from .schemas import Group as GroupModel, Schedule, Exam
-from .utils import parse_exam, parse_schedule
+from .parse import schedule as parse_schedule, exam as parse_exam
 from dependencies import current_year, current_sem 
 router = APIRouter(prefix='/group', tags=['Groups'])
 
@@ -75,7 +75,7 @@ async def get_group_schedule(
         except ValueError as error:
             raise HTTPException(404, detail=error.args[0])
 
-    data = parse_schedule(html=html, group=GroupModel(id=id, value=name))
+    data = schedule(html=html, group=GroupModel(id=id, value=name))
     return data
 
 

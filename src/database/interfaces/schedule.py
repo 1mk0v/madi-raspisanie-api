@@ -2,13 +2,14 @@ from . import Interface
 from typing import List, Dict
 from sqlalchemy import Table 
 from models import (
-    Date as Date_Model,
-    Time as Time_Model,
+    Date as DateModel,
+    Time as TimeModel,
     Teacher,
     Group
 )
-from groups.schemas import Schedule as Schedule_Group
-from database.models import All_Schedule
+from schedule.schemas import Schedule as GlobalSchedule
+from groups.schemas import GroupLesson
+from teachers.schemas import TeacherLesson
 from database.schemas import *
 
 class ScheduleInfoDB(Interface):
@@ -19,7 +20,6 @@ class ScheduleInfoDB(Interface):
         return res
         
     async def format(self,data:List):
-        #TODO - need optimization
         for element in data:
             weekday_info = await self.__get_value(weekday, "id", "weekday_id", element,1)
             date_info = await self.db.fetch_one(query=date.select().where(date.c['id'] == element['date_id']))
@@ -30,11 +30,13 @@ class ScheduleInfoDB(Interface):
             auditorium_info = await self.__get_value(auditorium, "id", "auditorium_id", element, 2)
             teacher_info = await self.db.fetch_one(query=teacher.select().where(teacher.c['id'] == element['teacher_id']))
             group_info = await self.db.fetch_one(query=group.select().where(group.c['id'] == element['group_id']))
-            yield [weekday_info, All_Schedule(
-                date=Date_Model(
+            print(weekday_info)
+            yield GlobalSchedule(
+                weekday = weekday_info, 
+                date=DateModel(
                     day=date_info['day'],
                     friequency=frequency_info,
-                    time = None if time_info == None else Time_Model(
+                    time = None if time_info == None else TimeModel(
                         start=time_info['start'],
                         end=time_info['end']
                     )
@@ -52,42 +54,44 @@ class ScheduleInfoDB(Interface):
                     value=group_info['value'],
                     department_id=group_info['department_id']
                 )
-            )]
+            )
     
-    async def get_by_group(self, id:int) -> Dict[str, List[Schedule_Group]]:
+    async def get_by_group(self, id:int) -> Dict[str, List[GroupLesson]]:
         data = await self.get_by_column('group_id', id)
-        schedule:Dict[str, List[Schedule_Group]] = dict()
+        schedule:Dict[str, List[GroupLesson]] = dict()
         weekday:str = ''
         async for element in self.format(data=data):
-            if weekday != element[0]:
-                weekday = element[0]
+            print(element)
+            if weekday != element.weekday:
+                weekday = element.weekday
                 schedule[weekday] = list()
             schedule[weekday].append(
-                Schedule_Group(
-                    date=element[1].date,
-                    discipline=element[1].discipline,
-                    type=element[1].type,
-                    auditorium=element[1].auditorium,
-                    teacher=element[1].teacher
+                GroupLesson(
+                    date=element.date,
+                    discipline=element.discipline,
+                    type=element.type,
+                    auditorium=element.auditorium,
+                    teacher=element.teacher
                 ))
         return schedule
                 
 
     async def get_by_teacher(self, id:int):
         data = await self.get_by_column('teacher_id', id)
-        schedule:Dict[str, List[Schedule_Group]] = dict()
+        schedule:Dict[str, List[TeacherLesson]] = dict()
         weekday:str = ''
         async for element in self.format(data=data):
-            if weekday != element[0]:
-                weekday = element[0]
+            print(element)
+            if weekday != element.weekday:
+                weekday = element.weekday
                 schedule[weekday] = list()
             schedule[weekday].append(
-                Schedule_Group(
-                    date=element[1].date,
-                    discipline=element[1].discipline,
-                    type=element[1].type,
-                    auditorium=element[1].auditorium,
-                    group=element[1].group
+                TeacherLesson(
+                    date=element.date,
+                    discipline=element.discipline,
+                    type=element.type,
+                    auditorium=element.auditorium,
+                    group=element.group
                 ))
         return schedule
     

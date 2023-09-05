@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from madi import RaspisanieTeachers
 from dependencies import current_sem, current_year
 from .schemas import Teacher as TeacherModel, Schedule, Exam
-from .utils import parse_schedule, parse_exam
+from .parse import parse_schedule, parse_exam
 
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
 
@@ -65,12 +65,12 @@ async def get_teacher_schedule(
     except (exceptions.ConnectionError, ValueError):
         try:
             teacher = TeacherModel(id=id, value=name)
-            return Schedule(teacher=teacher, schedule=await DBScheduleInfo.get_by_teacher(id=id))
+            schedule = await DBScheduleInfo.get_by_teacher(id=id)
+            print(schedule)
+            return Schedule(teacher=teacher, schedule = schedule)
         except ValueError as error:
             raise HTTPException(404, detail=error.args[0])
-    
     data = parse_schedule(html=html, teacher=TeacherModel(id=id, value=name))
-
     return data
 
 
@@ -99,7 +99,7 @@ async def get_teacher_exam(
         raise HTTPException(404)
    
 
-    data = parse_schedule(html=html, teacher=TeacherModel(id=id, value=name))
+    data = parse_exam(html=html, teacher=TeacherModel(id=id, value=name))
 
     return data
 

@@ -1,4 +1,3 @@
-from schedule.schemas import Schedule
 from pydantic import BaseModel
 
 class Response_Message(BaseModel):
@@ -14,6 +13,3 @@ class Schedule_Info(BaseModel):
     auditorium_id:int | None = None
     teacher_id:int | None = None
     group_id:int | None = None
-
-class All_Schedule(Schedule):
-    pass

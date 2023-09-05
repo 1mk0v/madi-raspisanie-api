@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup as bs
-from schedule.utils import generate_exam, generate_lesson
+from schedule.generators import exam as gen_exam, lesson as gen_lesson
 from .schemas import Teacher as TeacherModel, Schedule, Exam, Lesson, Group
 from models import Date, Time
 from utils import convert_to_dict_time, remove_spaces
@@ -10,12 +10,12 @@ def parse_schedule(html: bs, teacher:TeacherModel = None) -> Schedule:
         """Parsing HTML table of schedule"""
         
         data = Schedule(
-            teacher_info=teacher,
+            teacher=teacher,
             schedule=dict()
         )
     
         schedule:List
-        for lesson in generate_lesson(html):
+        for lesson in gen_lesson(html):
             if len(lesson) == 1:
                 data.schedule[lesson[0]] = list()
                 schedule = data.schedule[lesson[0]]
@@ -46,11 +46,11 @@ def parse_exam(html: bs, teacher:TeacherModel) -> Exam:
         """Parsing a table with a group class schedule"""
 
         data = Exam(
-            teacher_info=teacher,
+            teacher=teacher,
             exams=list()
         )
 
-        for exam in generate_exam(html):
+        for exam in gen_exam(html):
             exam_date_time = exam[1].split(' ')
             time = convert_to_dict_time(exam_date_time[1])
             data.exams.append(Schedule(

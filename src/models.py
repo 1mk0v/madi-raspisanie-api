@@ -30,7 +30,6 @@ class Lesson(BaseModel):
     type:str | None = None
     auditorium:str | None = None
 
-
 class ResponseMessage(BaseModel):
     id:int
     status_code:int
