@@ -62,11 +62,12 @@ async def get_teacher_schedule(
 ):
     try:
         html = await raspisanie_teachers.get_schedule(id, year, sem)
-    except (exceptions.ConnectionError, ValueError):
+    except (exceptions.ConnectionError, ValueError) as error:
         try:
+            print(error)
             teacher = TeacherModel(id=id, value=name)
             schedule = await DBScheduleInfo.get_by_teacher(id=id)
-            return Schedule(teacher=teacher, schedule = schedule)
+            return Schedule(teacher = teacher, schedule = schedule)
         except ValueError as error:
             raise HTTPException(404, detail=error.args[0])
     data = parse_schedule(html=html, teacher=TeacherModel(id=id, value=name))

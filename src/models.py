@@ -6,9 +6,6 @@ class Essence(BaseModel):
     id:int | None = None
     value:str | None = None 
 
-class Department(Essence):
-    pass
-
 class Group(Essence):
     department_id:int | None = None
 

@@ -31,11 +31,9 @@ class RaspisanieMADI():
         return self._post(url="tableFiller.php", data=data)
 
     def _is_Empty(self, response:requests.Response, page_element:str, class_name:str=None, detail:str='Not found') -> List[bs] | bs:
-        html = bs(response.text, 'lxml').find_all(page_element, class_=class_name)
+        html = bs(response.text, 'lxml').find_all(name=page_element, attrs={"class":class_name})
         if len(html) < 1:
             raise ValueError(detail)
-        if page_element == 'table':
-            html = html[1]
         return html
 
 class RaspisanieGroups(RaspisanieMADI):
@@ -81,8 +79,9 @@ class RaspisanieGroups(RaspisanieMADI):
         return self._is_Empty(
             response=response,
             page_element='table',
+            class_name='timetable',
             detail=response.text
-            )
+        )[0]
 
     async def get_exam(self, id:int, sem:int, year:int, name:str= None) -> bs:
         response = self._schedule(
@@ -97,8 +96,9 @@ class RaspisanieGroups(RaspisanieMADI):
         return self._is_Empty(
             response=response,
             page_element='table',
+            class_name='timetable',
             detail=f'The are no exams for group ID {id}'
-        )
+        )[0]
 
 
 class RaspisanieTeachers(RaspisanieMADI):
@@ -140,7 +140,9 @@ class RaspisanieTeachers(RaspisanieMADI):
         return self._is_Empty(
             response=response,
             page_element='table',
-            detail=f'The are no schedule for teacher ID {id}')
+            class_name='timetable',
+            detail=f'The are no schedule for teacher ID {id}'
+        )[0]
     
     async def get_exam(self, id:int, year:int, sem:int) -> bs:
         response = self._schedule(
@@ -154,7 +156,9 @@ class RaspisanieTeachers(RaspisanieMADI):
         return self._is_Empty(
             response=response,
             page_element='table',
-            detail=f'The are no schedule for teacher ID {id}')
+            class_name='timetable',
+            detail=f'The are no schedule for teacher ID {id}'
+        )[0]
 
 
 class RaspisanieDepartments(RaspisanieMADI):
@@ -199,11 +203,27 @@ class RaspisanieDepartments(RaspisanieMADI):
             class_name='bright'
         )
 
-    # async def get_groups(self, id:int, sem:int, year:int):
-
+    async def get_auditoriums(self, id:int, sem:int, year:int):
+        response = self._schedule(
+            data = {
+                'tab':'11',
+                'kf_id': f'{id}',
+                'sort': '2',
+                'tp_year': f'{year}',
+                'sem_no': f'{sem}'
+            }
+        )
+        return self._is_Empty(
+            response=response,
+            page_element='table',
+            class_name='timetable',
+            detail='Department audits not found'
+        )[0]
+    
     async def get_schedule(self, id:int, sem:int, year:int):
         response = self._schedule(
             data = {
+                'tab':'11',
                 'kf_id': f'{id}',
                 'sort': '1',
                 'tp_year': f'{year}',
@@ -213,5 +233,6 @@ class RaspisanieDepartments(RaspisanieMADI):
         return self._is_Empty(
             response=response,
             page_element='table',
-            
-        )
+            class_name='timetable',
+            detail='Department schedule not found'
+        )[0]

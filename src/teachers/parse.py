@@ -53,7 +53,7 @@ def parse_exam(html: bs, teacher:TeacherModel) -> Exam:
         for exam in gen_exam(html):
             exam_date_time = exam[1].split(' ')
             time = convert_to_dict_time(exam_date_time[1])
-            data.exams.append(Schedule(
+            data.exams.append(Lesson(
                 date = Date(
                     day = exam_date_time[0],
                     time = Time(

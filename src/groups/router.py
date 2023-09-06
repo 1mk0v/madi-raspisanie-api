@@ -75,7 +75,7 @@ async def get_group_schedule(
         except ValueError as error:
             raise HTTPException(404, detail=error.args[0])
 
-    data = schedule(html=html, group=GroupModel(id=id, value=name))
+    data = parse_schedule(html=html, group=GroupModel(id=id, value=name))
     return data
 
 
