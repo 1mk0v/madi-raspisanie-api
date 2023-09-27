@@ -27,7 +27,11 @@ class Lesson(BaseModel):
     type:str | None = None
     auditorium:str | None = None
 
+class Schedule(Lesson):
+    group:Group | None = None
+    teacher:Teacher | None = None
+
 class ResponseMessage(BaseModel):
     id:int
-    status_code:int
-    detail:str
+    status_code:int | None = None
+    detail:str = 'Success'

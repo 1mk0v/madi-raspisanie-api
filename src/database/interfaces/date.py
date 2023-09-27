@@ -20,11 +20,6 @@ class DateDB(Interface):
             time_id=time_id
         )
         return self._is_Empty(await self.db.execute(query=query))
-            
-    async def get_model(self, DBobject):
-        print(DBobject)
-        for i in DBobject:
-            print(i)
 
 
 DBDate = DateDB(

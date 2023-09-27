@@ -1,11 +1,9 @@
-from sqlalchemy import Column, Integer, String, Table, ForeignKey, Time, Date
+from sqlalchemy import Column, Integer, String, Table, ForeignKey, Time
 import databases
 from .models import *
 from sqlalchemy import  MetaData, create_engine
 
 DATABASE_URL = "sqlite:///./database/test.db"
-
-# DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
 database = databases.Database(DATABASE_URL)
 
@@ -110,9 +108,12 @@ exam = Table(
     "exam_info",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement="auto", unique=True),
-    Column("date_id", Integer, ForeignKey("date.id")),
-    Column("discipline_id", Integer, ForeignKey("discipline.id")),
-    Column("auditorium_id", Integer, ForeignKey("auditorium.id"))
+    Column("group_id",Integer, ForeignKey("group.id"), default= None),
+    Column("teacher_id", Integer, ForeignKey("teacher.id"), default= None),
+    Column("date_id", Integer, ForeignKey("date.id"), default = None),
+    Column("discipline_id", Integer, ForeignKey("discipline.id"), default = None),
+    Column("type_id", Integer, ForeignKey("type.id"), default = None),
+    Column("auditorium_id", Integer, ForeignKey("auditorium.id"), default= None)
 )
 
 metadata.create_all(engine)

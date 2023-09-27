@@ -6,15 +6,6 @@ from .schemas import Teacher
 raspisanie_teachers = RaspisanieTeachers()
 
 async def find_by_names(teachers:List, dep_id:int = None) -> List[Teacher]:
-    """_summary_
-
-    Args:
-        teachers (List): NONE SORTED!
-        dep_id (int, optional): _description_. Defaults to None.
-
-    Returns:
-        _type_: List[Teacher]
-    """
     res = list()
     html = await raspisanie_teachers.get(
         sem=get_current_sem(),

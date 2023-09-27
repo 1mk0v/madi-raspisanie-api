@@ -13,9 +13,6 @@ class TimeDB(Interface):
     async def add(self, start:datetime.time, end:datetime.time):
         query = self.schema.insert().values(start=start, end=end)
         return self._is_Empty(await self.db.execute(query))
-    
-    async def add_list(self):
-        pass
 
 DBTime = TimeDB(
     model=Time,

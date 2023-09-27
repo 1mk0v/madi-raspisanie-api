@@ -1,10 +1,3 @@
-"""
-    Модуль для составления запросов к сайту МАДИ с расписанием
-
-    * `Group` - 
-    * `Teacher` -
-"""
-
 import requests
 from typing import List
 from bs4 import BeautifulSoup as bs
@@ -103,12 +96,6 @@ class RaspisanieGroups(RaspisanieMADI):
 
 class RaspisanieTeachers(RaspisanieMADI):
     
-    """
-        Use get request of `requests` and `bs4` libs
-
-        Returns:
-            bs
-    """
     def __init__(self) -> None:
         super().__init__()
 
@@ -159,16 +146,9 @@ class RaspisanieTeachers(RaspisanieMADI):
             class_name='timetable',
             detail=f'The are no schedule for teacher ID {id}'
         )[0]
-
+    
 
 class RaspisanieDepartments(RaspisanieMADI):
-    
-    """
-        Use get request of `requests` and `bs4` libs
-
-        Returns:
-            bs
-    """
 
     def __init__(self) -> None:
         super().__init__()

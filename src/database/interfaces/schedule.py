@@ -11,6 +11,11 @@ from schedule.schemas import Schedule as GlobalSchedule
 from groups.schemas import GroupLesson
 from teachers.schemas import TeacherLesson
 from database.schemas import *
+from database.models import Schedule
+from .base import *
+from .group import DBGroups
+from .teachers import DBTeacher
+from other.db_methods import add, add_date, add_discipline
 
 class ScheduleInfoDB(Interface):
 
@@ -18,7 +23,19 @@ class ScheduleInfoDB(Interface):
         res = await self.db.fetch_val(query=schema.select().where(schema.c[col_name] == element[el_name]),
                                       column=col_num)
         return res
-        
+    
+    async def get_one(self, schedule:Schedule):
+        query = self.schema.select().where(
+            self.schema.c.weekday_id == schedule.weekday_id,
+            self.schema.c.date_id == schedule.date_id,
+            self.schema.c.discipline_id == schedule.lesson_id,
+            self.schema.c.type_id == schedule.type_id,
+            self.schema.c.auditorium_id == schedule.auditorium_id,
+            self.schema.c.teacher_id == schedule.teacher_id,
+            self.schema.c.group_id == schedule.group_id
+        )
+        return self._is_Empty(await self.db.fetch_one(query))
+    
     async def format(self,data:List):
         for element in data:
             weekday_info = await self.__get_value(weekday, "id", "weekday_id", element,1)
@@ -30,7 +47,6 @@ class ScheduleInfoDB(Interface):
             auditorium_info = await self.__get_value(auditorium, "id", "auditorium_id", element, 2)
             teacher_info = await self.db.fetch_one(query=teacher.select().where(teacher.c['id'] == element['teacher_id']))
             group_info = await self.db.fetch_one(query=group.select().where(group.c['id'] == element['group_id']))
-            print(weekday_info)
             yield GlobalSchedule(
                 weekday = weekday_info, 
                 date=DateModel(
@@ -61,7 +77,6 @@ class ScheduleInfoDB(Interface):
         schedule:Dict[str, List[GroupLesson]] = dict()
         weekday:str = ''
         async for element in self.format(data=data):
-            print(element)
             if weekday != element.weekday:
                 weekday = element.weekday
                 schedule[weekday] = list()
@@ -74,14 +89,13 @@ class ScheduleInfoDB(Interface):
                     teacher=element.teacher
                 ))
         return schedule
-                
+
 
     async def get_by_teacher(self, id:int):
         data = await self.get_by_column('teacher_id', id)
         schedule:Dict[str, List[TeacherLesson]] = dict()
         weekday:str = ''
         async for element in self.format(data=data):
-            print(element)
             if weekday != element.weekday:
                 weekday = element.weekday
                 schedule[weekday] = list()
@@ -94,29 +108,39 @@ class ScheduleInfoDB(Interface):
                     group=element.group
                 ))
         return schedule
-    
+
+
     async def add(
         self,
-        weekday_id:int,
-        date_id:int,
-        discipline_id:int,
-        type_id:int,
-        auditorium_id:int,
-        teacher_id:int,
-        group_id:int
+        schedule:Schedule
     ):
-        query = self.schema.insert().values(
-            weekday_id=weekday_id,
-            date_id=date_id,
-            discipline_id=discipline_id,
-            type_id=type_id,
-            auditorium_id=auditorium_id,
-            teacher_id = teacher_id,
-            group_id = group_id)
-        return self._is_Empty(await self.db.execute(query))
+        try:
+            return (await self.get_one(schedule))['id']
+        except:
+            query = self.schema.insert().values(
+                weekday_id=schedule.weekday_id,
+                date_id=schedule.date_id,
+                discipline_id=schedule.lesson_id,
+                type_id=schedule.type_id,
+                auditorium_id=schedule.auditorium_id,
+                teacher_id=schedule.teacher_id,
+                group_id=schedule.group_id)
+            return self._is_Empty(await self.db.execute(query))
+    
     
 
 DBScheduleInfo = ScheduleInfoDB(
-    model=Schedule_Info,
+    model=Schedule,
     schema=schedule
 )
+
+async def addToAllTableFromSchedule(schedule:GlobalSchedule) -> Schedule:
+    return Schedule(
+        weekday_id = (await add(DBWeekday, schedule.weekday)).id,
+        date_id = (await add_date(schedule.date)).id,
+        lesson_id = (await add_discipline(value = schedule.discipline)).id,
+        type_id = (await add(DBType, value = schedule.type)).id,
+        auditorium_id = (await add(DBAuditorium, value = schedule.auditorium)).id,
+        group_id = (await DBGroups.add(group = schedule.group)),
+        teacher_id = (await DBTeacher.add(teacher = schedule.teacher)),
+    )
