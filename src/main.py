@@ -35,4 +35,4 @@ app.include_router(group_router)
 app.include_router(database.router)
 
 if __name__ == '__main__':
-    uvicorn.run(app)
+    uvicorn.run(app, port=7867)
