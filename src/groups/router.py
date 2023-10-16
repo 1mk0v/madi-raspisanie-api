@@ -6,6 +6,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, status
 from requests import exceptions
 from .schemas import Group as GroupModel
+
 router = APIRouter(prefix='/group', tags=['Groups'])
 
 raspisanie_groups = RaspisanieGroups()

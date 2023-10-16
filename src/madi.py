@@ -29,27 +29,14 @@ class RaspisanieMADI():
             raise ValueError(detail)
         return html
 
+
 class RaspisanieGroups(RaspisanieMADI):
-
-    """
-        Методы для получения данных с сайта МАДИ относительно группы
-
-        * `get` - вернет все группы на данный учебный год
-        * `get_schedule`- вернет расписание определенной группы 
-        * `get_exam` - вернет расписание экзаменов определенной группы
-
-    """
 
     def __init__(self) -> None:
         super().__init__()
 
     async def get(self) -> bs:
-        """
-        Use get request of `requests` and `bs4` libs
 
-        Returns:
-            bs
-        """
         response = self._get(
             url='task3,7_fastview.php'
             )
@@ -59,7 +46,7 @@ class RaspisanieGroups(RaspisanieMADI):
 
     
     async def get_schedule(self, id:int, sem:int, year:int, name:str = None) -> bs:
-
+        
         response = self._schedule(
             data={
                 'tab':'7',
@@ -92,7 +79,7 @@ class RaspisanieGroups(RaspisanieMADI):
             class_name='timetable',
             detail=f'The are no exams for group ID {id}'
         )[0]
-
+    
 
 class RaspisanieTeachers(RaspisanieMADI):
     

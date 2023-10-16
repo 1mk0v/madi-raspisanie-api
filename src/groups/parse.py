@@ -71,7 +71,7 @@ def schedule(html: bs, group:Group | str = None) -> Schedule:
                 schedule[last_list_el].discipline.append(lesson[0])
 
         return data
-    
+
 
 def exam(html: bs, group:Group = None) -> Exam:
 

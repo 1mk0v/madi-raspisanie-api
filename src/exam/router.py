@@ -46,7 +46,7 @@ async def getGroupExam(
             raise HTTPException(404)
     
 
-#---------------Teacher---------------#
+# #---------------Teacher---------------#
 
 raspisanie_teachers = madi.RaspisanieTeachers()
 

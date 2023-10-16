@@ -5,7 +5,6 @@ from models import Essence as Department, ResponseMessage
 from typing import List
 from fastapi import APIRouter, HTTPException, status
 from requests import exceptions
-from dependencies import current_year, current_sem
 
 router = APIRouter(prefix='/department', tags=['Departments'])
 

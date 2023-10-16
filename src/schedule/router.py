@@ -12,7 +12,8 @@ import dependencies
 import madi
 from .utils import parseGroupSchedule, parseTeacherSchedule, parseDepartmentSchedule
 from .schemas import Schedule
-
+from bridges.madi import MADIBridge
+from parsing.schedule import Schedule as ParseSchedule
 router = APIRouter(prefix='/schedule', tags=['Schedule'])
     
 
@@ -31,7 +32,8 @@ raspisanie_groups = madi.RaspisanieGroups()
             status.HTTP_404_NOT_FOUND:{
                 "description": "Response if there is no internet connection and no records in the database"
             }
-    })
+    }
+)
 async def getGroupSchedule(
     id:int,
     name:str = None,
@@ -40,7 +42,9 @@ async def getGroupSchedule(
 ):
     try:
         html = await raspisanie_groups.get_schedule(id, sem, year, name)
-        return await parseGroupSchedule(html=html, group=Group(id=id, value=name))
+        bridge = MADIBridge(html)
+        schedule = ParseSchedule(bridge=bridge)
+        return await schedule.schedule
     except (exceptions.ConnectionError, ValueError):
         try:
             group = await DBGroups.get_by_column('id', id)
@@ -105,7 +109,7 @@ async def getDepartmentSchedule(
             raise ValueError("Can't find schedule")
         except ValueError as error:
             raise HTTPException(404, detail=error.args[0])
-    
+
 
 @router.post(
         '/add/department/{id}',

@@ -3,13 +3,13 @@ from typing import List
 from utils import convert_to_dict_time, remove_garbage, get_current_sem, get_current_year, findValueInListHTML
 from groups.schemas import (
     Group,
+    GroupLesson,
     Schedule as GroupSchedule,
-    Lesson as GroupLesson,
     )
 from teachers.schemas import (
     Teacher,
+    TeacherLesson,
     Schedule as TeacherSchedule,
-    Lesson as TeacherLesson,
 )
 from department.schemas import (
     Department,
@@ -94,7 +94,6 @@ async def parseTeacherSchedule(html: bs, teacher: Teacher = None) -> TeacherSche
                     auditorium=lesson[5]
                 )
             )
-
     return data
 
 
