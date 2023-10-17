@@ -28,10 +28,11 @@ app.add_middleware(
 )
 
 app.include_router(department_router)
-app.include_router(schedule_router)
-app.include_router(exam_router)
 app.include_router(teacher_router)
 app.include_router(group_router)
+app.include_router(schedule_router)
+app.include_router(exam_router)
+
 app.include_router(database.router)
 
 if __name__ == '__main__':

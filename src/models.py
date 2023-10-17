@@ -31,11 +31,10 @@ class Schedule(Lesson):
     group:Group | None = None
     teacher:Teacher | None = None
 
+class LessonInfo(Schedule):
+    weekday:str | None = None
+
 class Response(BaseModel):
     statusCode:int
     detail:str = 'Success'
-    data:list | str | None = None
-class ResponseMessage(BaseModel):
-    id:int
-    status_code:int | None = None
-    detail:str = 'Success'
+    data: str | list | Essence | Group | Teacher | None = None

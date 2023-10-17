@@ -12,7 +12,6 @@ class Exam(BaseModel):
     teacher_id:int | None = None
     group_id:int | None = None
 
-
 class Schedule(Exam):
     weekday_id:int | None = None
     

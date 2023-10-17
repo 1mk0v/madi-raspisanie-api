@@ -1,7 +1,8 @@
 from utils import getListOfEssences
 from madi import RaspisanieDepartments
-from database.interfaces.base import DBDepartment
-from models import Essence as Department, ResponseMessage
+from database.interfaces import Interface as DepartmentDatabaseInterface
+from database.schemas import department
+from models import Essence as Department, Response
 from typing import List
 from fastapi import APIRouter, HTTPException, status
 from requests import exceptions
@@ -9,28 +10,20 @@ from requests import exceptions
 router = APIRouter(prefix='/department', tags=['Departments'])
 
 raspisanie_departments = RaspisanieDepartments()
+departmentTable = DepartmentDatabaseInterface(model=Department, schema=department)
 
 @router.get(
         '/',
         summary = "GET actual groups",
         description="Get all actual groups from https://raspisanie.madi.ru/tplan/r/?task=7",
-        responses = {
-            status.HTTP_200_OK:{
-                "model":List[Department],
-                "description": "OK Response",
-            },
-            status.HTTP_404_NOT_FOUND:{
-                "description": "Response if there is no internet connection and no records in the database"
-            }
-        },
 )
 async def getDepartments():
     try:
         html = await raspisanie_departments.get()
-        return getListOfEssences(html=html)
+        return Response(statusCode=200, data=getListOfEssences(html=html))
     except (exceptions.ConnectionError, ValueError):
         try:
-            return await DBDepartment.get_all()
+            return Response(statusCode=200, data=(await departmentTable.getAll()))
         except ValueError:
             raise HTTPException(404)
 
@@ -39,18 +32,15 @@ async def getDepartments():
 async def addDepartment(
     department:Department
 ):
-    if department == None:
-        return ResponseMessage(id = department , detail="The NONE value can't store in DB")
     try:
-        res = await DBDepartment.get_by_column(column_name="value", column_value=department.value)
-        return ResponseMessage(id = res['id'], detail="Already Add")
-    except:
-        res = await DBDepartment.add(department)
-        return ResponseMessage(id = res)
+        await departmentTable.add(department)
+        return Response(statusCode=201, data=department)
+    except Exception as error:
+        raise HTTPException(500, detail=error.args[0])
 
 
 @router.delete('/{id}/delete')
 async def deleteDepartment(
     id:int
 ):
-    return await DBDepartment.delete(id)
+    return await departmentTable.delete(id)

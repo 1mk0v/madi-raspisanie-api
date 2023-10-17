@@ -3,18 +3,18 @@ from models import Time
 from database.schemas import time
 import datetime
 
-class TimeDB(Interface):
+class TimeDatabaseInterface(Interface):
     
-    async def get_one(self, start:datetime.time, end:datetime.time):
-        query = self.schema.select().where((self.schema.c.start == start) &
-                                           (self.schema.c.end == end))
-        return self._is_Empty(await self.db.fetch_one(query))
+    def __init__(self, model = Time, schema = time) -> None:
+        super().__init__(model, schema)
+        
+    async def getByValue(self, start:datetime.time, end:datetime.time):
+        query = self.schema.select().where(
+            (self.schema.c.start == start) &
+            (self.schema.c.end == end)
+        )
+        return self._isEmpty(await self.db.fetch_one(query))
     
     async def add(self, start:datetime.time, end:datetime.time):
         query = self.schema.insert().values(start=start, end=end)
-        return self._is_Empty(await self.db.execute(query))
-
-DBTime = TimeDB(
-    model=Time,
-    schema=time
-)
+        return self._isEmpty(await self.db.execute(query))
