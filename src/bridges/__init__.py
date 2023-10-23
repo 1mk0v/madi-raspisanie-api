@@ -15,6 +15,10 @@ class Bridge(ABC):
     async def generateLessons(self) -> AsyncGenerator:
         pass
 
+    @abstractmethod
+    async def generateAcademicCommunity(self) -> AsyncGenerator:
+        pass
+
 
 class Generator():
     
@@ -22,6 +26,7 @@ class Generator():
                  bridge:Bridge
                 ) -> None:
         self.bridge = bridge
+        self.__community = Response(statusCode=200, data=list())
         self.__schedule = Response(statusCode=200, data=list())
 
     async def generateSchedule(self):
@@ -33,3 +38,13 @@ class Generator():
         for lesson in self.bridge.generateLessons():
             if lesson != None:
                 self.__schedule.data.append(lesson)
+
+    async def generateListOfCommunity(self):
+        if len(self.__community.data) == 0:
+            await self.__generateListOfCommunity()
+        return self.__community
+
+    async def __generateListOfCommunity(self):
+        for community in self.bridge.generateAcademicCommunity():
+            if community != None:
+                self.__community.data.append(community)

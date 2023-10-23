@@ -1,14 +1,15 @@
-from database.interfaces.exam import ExamDatabaseInterface
+from database.interfaces.schedule import ExaminationDatabaseInterface
+from database.schemas import exam
 from models import Response, Schedule
 from requests import exceptions
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends
 import dependencies
 from bridges import madi, Generator
 import madi as madiRequests
 
 
 router = APIRouter(prefix='/exam', tags=['Exam'])
-examTable = ExamDatabaseInterface()
+examTable = ExaminationDatabaseInterface(schema=exam)
 raspisanieGroups = madiRequests.RaspisanieGroups()
 raspisanieTeachers = madiRequests.RaspisanieTeachers()
 
@@ -30,9 +31,9 @@ async def getGroupExam(
         return await generator.generateSchedule()
     except (exceptions.ConnectionError, ValueError):
         try:
-            return examTable.getByGroupId(id)
-        except ValueError:
-            raise HTTPException(404)
+            return Response(statusCode = 200, data=await examTable.getByGroupId(id))
+        except ValueError as error:
+            raise HTTPException(404, detail=error.args[0])
     
 
 @router.get(
@@ -50,18 +51,17 @@ async def getTeacherExam(
         html = await raspisanieTeachers.get_exam(id, year, sem)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
-    except (exceptions.ConnectionError, ValueError) as error:
+    except (exceptions.ConnectionError, ValueError):
         try:
-            return await examTable.getByTeacherId(id)
+            return Response(statusCode = 200, data = await examTable.getByTeacherId(id))
         except ValueError as error:
-            raise HTTPException(404)
+             raise HTTPException(404, detail=error.args[0])
 
 
 @router.post("/add")
 async def add(exam:Schedule):
     try:
-        await examTable.add(exam)
-        return Response(statusCode=201, data=exam)
+        return Response(statusCode=201, data=await examTable.add(exam))
     except Exception as error:
         raise HTTPException(500, detail=error.args[0])
 

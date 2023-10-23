@@ -1,10 +1,10 @@
-from utils import getListOfEssences
+
 from madi import RaspisanieDepartments
 from database.interfaces import Interface as DepartmentDatabaseInterface
+from bridges import madi, Generator
 from database.schemas import department
 from models import Essence as Department, Response
-from typing import List
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException
 from requests import exceptions
 
 router = APIRouter(prefix='/department', tags=['Departments'])
@@ -20,7 +20,8 @@ departmentTable = DepartmentDatabaseInterface(model=Department, schema=departmen
 async def getDepartments():
     try:
         html = await raspisanie_departments.get()
-        return Response(statusCode=200, data=getListOfEssences(html=html))
+        generator = Generator(madi.MADIBridge(html))
+        return await generator.generateListOfCommunity()
     except (exceptions.ConnectionError, ValueError):
         try:
             return Response(statusCode=200, data=(await departmentTable.getAll()))

@@ -1,13 +1,10 @@
 from bs4 import BeautifulSoup as bs
-from models import Date, Time, Group, Teacher, LessonInfo
+from models import Date, Time, Community, LessonInfo, Schedule, Essence
 from bridges import Bridge
 from typing import Any, List
-from utils import remove_spaces
+from utils import removeDuplicateSpaces
 
 class Formater():
-
-    def __init__(self) -> None:
-        pass
 
     class Schedule():
 
@@ -30,7 +27,7 @@ class Formater():
                     discipline=value[1],
                     type=value[2],
                     auditorium=value[4],
-                    teacher=Teacher(value = remove_spaces(value[5])),
+                    teacher=Community(value = removeDuplicateSpaces(value[5])),
                     weekday=self.weekday
                 )
             else:
@@ -49,7 +46,7 @@ class Formater():
                     discipline=value[2],
                     type=value[3],
                     auditorium=value[5],
-                    group=Group(value = value[1]),
+                    group=Community(value = value[1]),
                     weekday=self.weekday
                 )
 
@@ -61,12 +58,11 @@ class Formater():
                     discipline=value[4],
                     type=value[5],
                     auditorium=value[2],
-                    group=Group(value = value[3]),
-                    teacher=Teacher(value = self.teacher),
+                    group=Community(value = value[3]),
+                    teacher=Community(value = self.teacher),
                     weekday=self.weekday
                 )
             
-        #TODO - need decorator
         def fromGroupToLesson(self, list) -> LessonInfo:
             if len(list) == 1:
                 self.weekday = list[0]
@@ -86,7 +82,7 @@ class Formater():
         def fromDepartmentToLesson(self, list) -> LessonInfo:
             if len(list) == 1:
                 self.weekday = list[0] if list[0] in self.weekdays else self.weekday
-                self.teacher = remove_spaces(list[0]) if list[0] not in self.weekdays else self.teacher
+                self.teacher = removeDuplicateSpaces(list[0]) if list[0] not in self.weekdays else self.teacher
                 self.__schedule = None
             else:
                 self.setScheduleDepartment(list)
@@ -103,30 +99,30 @@ class Formater():
         def setExamGroup(self, value:List[str]):
             time = value[1].split(' ')
             date = Date(day=time[0], time=Time(start=time[1],end=None)) 
-            self.__schedule = LessonInfo(
+            self.__schedule = Schedule(
                     date=date,
                     discipline=value[0],
                     type='Экзамен',
                     auditorium=value[2],
-                    teacher=Teacher(value = remove_spaces(value[3]))
+                    teacher=Community(value = removeDuplicateSpaces(value[3]))
                 )
             
         def setExamTeacher(self, value:List[str]):
             time = value[1].split(' ')
             date = Date(day=time[0], time=Time(start=time[1],end=None)) 
-            self.__schedule = LessonInfo(
+            self.__schedule = Schedule(
                     date=date,
                     discipline=value[3],
                     type='Экзамен',
                     auditorium=value[2],
-                    group=Group(value =value[0])
+                    group=Community(value =value[0])
                 )
         
-        def fromGroupToLesson(self, list) -> LessonInfo:
+        def fromGroupToLesson(self, list) -> Schedule:
             self.setExamGroup(list)
             return self.schedule
 
-        def fromTeacherToLesson(self, list) -> LessonInfo:
+        def fromTeacherToLesson(self, list) -> Schedule:
             self.setExamTeacher(list)
             return self.schedule
 
@@ -181,3 +177,8 @@ class MADIBridge(Bridge):
             element = self._deleteFirstAndLastEmptyElements(element.get_text().split('\n'))
             if 'Аудитория' not in element:
                 yield method(element)
+
+    def generateAcademicCommunity(self):
+        for element in self.response:
+            if int(element['value']) > -1 and '20' not in element.text:
+                yield Essence(id=element['value'], value=removeDuplicateSpaces(element.text))

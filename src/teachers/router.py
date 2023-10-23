@@ -1,18 +1,18 @@
+from fastapi import APIRouter, HTTPException, Depends
 from database.interfaces.academic_community import AcademicCommunityDatabaseInterface
-from models import Teacher, Response
+from madi import RaspisanieTeachers
+from models import Response
 from database.schemas import teacher
-from utils import getListOfEssences
+from bridges import madi, Generator
 from typing import List
 from requests import exceptions
-from fastapi import APIRouter, HTTPException, status, Depends
-from madi import RaspisanieTeachers
+
+
 from dependencies import current_sem, current_year
-from .schemas import Teacher as TeacherModel
 
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
 raspisanie_teachers = RaspisanieTeachers()
-teacherTable = AcademicCommunityDatabaseInterface(Teacher, teacher)
-
+teacherTable = AcademicCommunityDatabaseInterface(schema=teacher)
 
 @router.get(
     '/',
@@ -23,7 +23,8 @@ async def get_all_teachers(
 ):
     try:
         html = await raspisanie_teachers.get(year, sem)
-        return getListOfEssences(html=html, model=TeacherModel)
+        generator = Generator(madi.MADIBridge(html))
+        return await generator.generateListOfCommunity()
     except (exceptions.ConnectionError, ValueError):
         try:
             return Response(statusCode=200, data=(await teacherTable.getActual()))
@@ -33,11 +34,10 @@ async def get_all_teachers(
 
 @router.post('/add')
 async def add_teacher(
-    teacher:TeacherModel
+    teacher
 ):
     try:
-        await teacherTable.add(teacher)
-        return Response(statusCode=201, data=teacher)
+        return Response(statusCode=201, data=(await teacherTable.add(teacher)))
     except Exception as err:
         raise HTTPException(500, detail=err.args[0])
     

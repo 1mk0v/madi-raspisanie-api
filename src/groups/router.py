@@ -1,18 +1,15 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException
 from madi import RaspisanieGroups
+from bridges import Generator, madi 
 from database.interfaces.academic_community import AcademicCommunityDatabaseInterface
-from models import Group, Response
+from models import Community, Response
 from database.schemas import group
-from utils import getListOfEssences
-
-from typing import List
 from requests import exceptions
-from .schemas import Group as GroupModel
 
 router = APIRouter(prefix='/group', tags=['Groups'])
 
-raspisanie_groups = RaspisanieGroups()
-groupTable = AcademicCommunityDatabaseInterface(Group, group)
+raspisanieGroups = RaspisanieGroups()
+groupTable = AcademicCommunityDatabaseInterface(schema=group)
 
 @router.get(
         '/',
@@ -21,11 +18,12 @@ groupTable = AcademicCommunityDatabaseInterface(Group, group)
 )
 async def get_groups():
     try:
-        html = await raspisanie_groups.get()
-        return getListOfEssences(html=html, model=GroupModel)
+        html = await raspisanieGroups.get()
+        generator = Generator(bridge=madi.MADIBridge(html))
+        return await generator.generateListOfCommunity()
     except (exceptions.ConnectionError, ValueError):
         try:
-            return Response(statusCode=200, data=(await groupTable.getActual()))
+            return Response(statusCode=200, data = await groupTable.getActual())
         except ValueError:
             raise HTTPException(404)
 
@@ -35,9 +33,7 @@ async def get_groups():
         summary = "ADD group",
         description="Add one group by thier model"
 )
-async def add_group(
-    group:GroupModel
-):
+async def add_group(group:Community):
     try:
         await groupTable.add(group)
         return Response(statusCode = 201, data=group)

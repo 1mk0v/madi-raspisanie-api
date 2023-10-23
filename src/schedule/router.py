@@ -26,15 +26,12 @@ async def getGroupSchedule(
     try:
         html = await raspisanieGroups.get_schedule(id, sem, year, name)
         generator = Generator(bridge=madi.MADIBridge(html))
-        return Response(statusCode=200, data=await generator.generateSchedule())
+        return await generator.generateSchedule()
     except (exceptions.ConnectionError, ValueError):
         try:
-            return Response(statusCode=200, data=await scheduleTable.getByGroupId(id))
-        except ValueError as error:
+            return Response(statusCode=200, data=(await scheduleTable.getByGroupId(id)))
+        except Exception as error:
             raise HTTPException(404, detail=error.args[0])
-
-
-#---------------Teacher---------------#
 
 @router.get(
         "/teacher/{id}",
@@ -50,7 +47,7 @@ async def getTeacherSchedule(
     try:
         html = await raspisanieTeachers.get_schedule(id, year, sem)
         generator = Generator(bridge=madi.MADIBridge(html))
-        return Response(statusCode=200, data=await generator.generateSchedule())
+        return await generator.generateSchedule()
     except (exceptions.ConnectionError, ValueError) as error:
         try:
             return scheduleTable.getByTeacherId(id)
@@ -63,7 +60,10 @@ async def getTeacherSchedule(
         description="",
 )
 async def addSchedule(schedule:LessonInfo):
-    return await scheduleTable.add(schedule)
+    try:
+        return await scheduleTable.add(schedule)
+    except Exception as error:
+        raise HTTPException(500, detail=error.args[0])
 
 @router.delete('/{id}/delete')
 async def delSchedule(id:int):
