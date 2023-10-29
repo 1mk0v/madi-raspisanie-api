@@ -10,7 +10,7 @@ class Interface():
         self.schema = schema
         self.db = db
 
-    def _isEmpty(self, object):
+    def _getObjectOrRaiseError(self, object):
         if (type(object) == list and len(object) == 0) \
             or (type(object) == dict and object == dict()) \
             or (type(object) == int and object == 0):
@@ -25,15 +25,15 @@ class Interface():
 
     async def getAll(self) -> List[BaseModel]:
         query = self.schema.select()
-        return self._isEmpty(await db.fetch_all(query))
+        return self._getObjectOrRaiseError(await db.fetch_all(query))
     
     async def getByColumn(self, columnName:str, columnValue:int | str ) -> List[BaseModel]:
         query = self.schema.select().where(self.schema.c[columnName] == columnValue)
-        return self._isEmpty(await db.fetch_all(query))
+        return self._getObjectOrRaiseError(await db.fetch_all(query))
 
     async def getById(self, id:int):
         query = self.schema.select().where(self.schema.c['id'] == id)
-        return self._isEmpty(await db.fetch_one(query))
+        return self._getObjectOrRaiseError(await db.fetch_one(query))
     
     async def add(self, value:str) -> BaseModel:
         if value == None:
@@ -42,7 +42,7 @@ class Interface():
             return (await self.getByColumn('value', value))[0].id
         except:
             query = self.schema.insert().values(value=value)
-            return self._isEmpty(await db.execute(query))
+            return self._getObjectOrRaiseError(await db.execute(query))
 
     async def delete(self, id:int) -> int():
         query = self.schema.delete().where(self.schema.c['id'] == id)

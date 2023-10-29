@@ -22,12 +22,12 @@ class AcademicCommunityDatabaseInterface(Interface):
 
     async def getActual(self) -> List[Community]:
         query = self.schema.select().where(self.schema.c.year == get_current_year())
-        data = self._isEmpty(await self.db.fetch_all(query))
+        data = self._getObjectOrRaiseError(await self.db.fetch_all(query))
         return [Community(**element) for element in data] 
 
     async def getByValue(self, value) -> BaseModel:
         query = self.schema.select().where(self.schema.c.value == value)
-        return self._isEmpty(await self.db.fetch_one(query))
+        return self._getObjectOrRaiseError(await self.db.fetch_one(query))
 
     async def add(self, community:BaseModel) -> BaseModel:
         if community == None:
@@ -41,4 +41,4 @@ class AcademicCommunityDatabaseInterface(Interface):
                 department_id = community.department_id,
                 year = get_current_year()
             )
-            return self._isEmpty(await self.db.execute(query))
+            return self._getObjectOrRaiseError(await self.db.execute(query))

@@ -19,11 +19,11 @@ class TimeDatabaseInterface(Interface):
             (self.schema.c.start == time.start) &
             (self.schema.c.end == time.end)
         )
-        return self._isEmpty(await self.db.fetch_one(query))
+        return self._getObjectOrRaiseError(await self.db.fetch_one(query))
     
     async def add(self, time:Time):
         try:
             return (await self.getByValue(time)).id
         except:
             query = self.schema.insert().values(start=time.start, end=time.end)
-            return self._isEmpty(await self.db.execute(query))
+            return self._getObjectOrRaiseError(await self.db.execute(query))

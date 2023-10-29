@@ -46,12 +46,12 @@ class ScheduleDatabaseInterface(Interface):
     
     async def getByGroupId(self,id:int):
         query = self.schema.select().where(self.schema.c['group_id'] == id)
-        data = self._isEmpty(await self.db.fetch_all(query))
+        data = self._getObjectOrRaiseError(await self.db.fetch_all(query))
         return await self._generateResult(data)
 
     async def getByTeacherId(self, id:int):
         query = self.schema.select().where(self.schema.c['teacher_id'] == id)
-        data = self._isEmpty(await self.db.fetch_all(query))
+        data = self._getObjectOrRaiseError(await self.db.fetch_all(query))
         return await self._generateResult(data)
 
     async def add(self, schedule):
@@ -62,7 +62,7 @@ class ScheduleDatabaseInterface(Interface):
             databaseInterface:Interface = self.__dict__[nameOfField]
             data[f'{nameOfField}_id'] = await databaseInterface.add(fieldData)
         query = self.schema.insert().values(data)
-        return self._isEmpty(await self.db.execute(query))
+        return self._getObjectOrRaiseError(await self.db.execute(query))
     
 
 class ExaminationDatabaseInterface(ScheduleDatabaseInterface):

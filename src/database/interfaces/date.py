@@ -32,7 +32,7 @@ class DateDatabaseInterface(Interface):
             (self.schema.c.frequency_id == date.frequency_id) &
             (self.schema.c.time_id == date.time_id)
         )
-        return self._isEmpty(await self.db.fetch_one(query))
+        return self._getObjectOrRaiseError(await self.db.fetch_one(query))
 
     async def add(self, date:models.Date):
         try:
@@ -48,4 +48,4 @@ class DateDatabaseInterface(Interface):
                 frequency_id = await self.frequency.add(date.friequency),
                 time_id = await self.time.add(date.time)
             )
-            return self._isEmpty(await self.db.execute(query=query))
+            return self._getObjectOrRaiseError(await self.db.execute(query=query))
