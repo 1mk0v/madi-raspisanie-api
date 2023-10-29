@@ -2,7 +2,7 @@ import requests
 from typing import List
 from bs4 import BeautifulSoup as bs
 
-URL = 'https://raspisanie.madi.ru/tplan/tasks/{}'
+
 
 class RaspisanieMADI():
 
@@ -12,18 +12,18 @@ class RaspisanieMADI():
     """
 
     def __init__(self) -> None:
-        pass
+        self.url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
 
     def _get(self, url, data:dict = None) -> requests.Response:
-        return requests.get(URL.format(url), data)
+        return requests.get(self.url.format(url), data)
     
     def _post(self, url, data:dict = None, ) -> requests.Response:
-        return requests.post(URL.format(url), data = data)
+        return requests.post(self.url.format(url), data = data)
     
     def _schedule(self, data:dict) -> requests.Response:
         return self._post(url="tableFiller.php", data=data)
 
-    def _is_Empty(self, response:requests.Response, page_element:str, class_name:str=None, detail:str='Not found') -> List[bs] | bs:
+    def _getPageElementOrException(self, response:requests.Response, page_element:str, class_name:str=None, detail:str='Not found') -> List[bs] | bs:
         html = bs(response.text, 'lxml').find_all(name=page_element, attrs={"class":class_name})
         if len(html) < 1:
             raise ValueError(detail)
@@ -40,7 +40,7 @@ class RaspisanieGroups(RaspisanieMADI):
         response = self._get(
             url='task3,7_fastview.php'
             )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='li')
 
@@ -56,7 +56,7 @@ class RaspisanieGroups(RaspisanieMADI):
                 'tp_year': f'{year}'
                 }
             )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='table',
             class_name='timetable',
@@ -73,7 +73,7 @@ class RaspisanieGroups(RaspisanieMADI):
                 'tp_year': f'{year}'
                 }
         )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='table',
             class_name='timetable',
@@ -97,7 +97,7 @@ class RaspisanieTeachers(RaspisanieMADI):
                 'cur_prep': 0
                 }
             )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='option'
         )
@@ -111,7 +111,7 @@ class RaspisanieTeachers(RaspisanieMADI):
                 'pr_id': f'{id}'
             }
         )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='table',
             class_name='timetable',
@@ -127,7 +127,7 @@ class RaspisanieTeachers(RaspisanieMADI):
                 'pr_id': f'{id}'
             }
         )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='table',
             class_name='timetable',
@@ -149,7 +149,7 @@ class RaspisanieDepartments(RaspisanieMADI):
                 'kaf_presel':''
                 }
             )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='option'
         )
@@ -164,7 +164,7 @@ class RaspisanieDepartments(RaspisanieMADI):
                 'sem_no': f'{sem}'
             }
         )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='td',
             class_name='bright'
@@ -180,7 +180,7 @@ class RaspisanieDepartments(RaspisanieMADI):
                 'sem_no': f'{sem}'
             }
         )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='table',
             class_name='timetable',
@@ -197,7 +197,7 @@ class RaspisanieDepartments(RaspisanieMADI):
                 'sem_no': f'{sem}'
             }
         )
-        return self._is_Empty(
+        return self._getPageElementOrException(
             response=response,
             page_element='table',
             class_name='timetable',
