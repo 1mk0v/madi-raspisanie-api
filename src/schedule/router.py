@@ -50,7 +50,7 @@ async def getTeacherSchedule(
         return await generator.generateSchedule()
     except (exceptions.ConnectionError, ValueError) as error:
         try:
-            return scheduleTable.getByTeacherId(id)
+            return await scheduleTable.getByTeacherId(id)
         except ValueError as error:
             raise HTTPException(404, detail=error.args[0])
 
