@@ -32,8 +32,4 @@ app.include_router(teacher_router)
 app.include_router(group_router)
 app.include_router(schedule_router)
 app.include_router(exam_router)
-
 app.include_router(database.router)
-
-if __name__ == "__main__":
-    uvicorn.run(app, port=9999, host="0.0.0.0")
