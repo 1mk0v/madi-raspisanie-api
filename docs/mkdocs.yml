@@ -1,0 +1,45 @@
+site_name: MADI Raspisanie API
+theme:
+  name: material
+  logo: images/ico.svg
+  favicon: images/ico.svg
+  palette: 
+    # Palette toggle for light mode
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default 
+      primary: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  features:
+    - navigation.tabs
+
+extra:
+  homepage: http://127.0.0.1:8000/home
+# extra:
+#   alternate:
+#     - name: English
+#       link: /en/ 
+#       lang: en
+#     - name: Russia
+#       link: /ru/
+#       lang: ru
+
+nav:
+  - Home: home.md
+  - About: about.md
