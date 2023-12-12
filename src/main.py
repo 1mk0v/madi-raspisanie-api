@@ -6,6 +6,7 @@ from teachers.router import router as teacher_router
 from schedule.router import router as schedule_router
 from exam.router import router as exam_router
 from department.router import router as department_router
+from auditoriums.router import router as auditoriumRouter
 from database import database
 
 app = FastAPI(
@@ -27,6 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auditoriumRouter)
 app.include_router(department_router)
 app.include_router(teacher_router)
 app.include_router(group_router)
