@@ -12,4 +12,4 @@ COPY . .
 #
 WORKDIR ./src
 # 
-CMD ["python3", "main.py"]
+CMD ["uvicorn", "main:app", "--port", "8080"]
