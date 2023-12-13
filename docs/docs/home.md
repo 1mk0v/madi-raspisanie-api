@@ -1,8 +1,11 @@
+# MADI Raspisanie API
+
+<img href='/home/danila/GIT-Projects/MADI-Projects/MADI-Raspisanie-API/docs/docs/images/madilogo.png'>
+
+---
 
 <i>Данный проект предназначен для автоматического сбора и анализа данных с сайта расписания Московского Автомобильно - Дорожного Института. Он содержит в себе методы, которые позволяют извлекать информацию, такие как список групп, преподавателей, кафедр и их расписания, а также предоставляет инструменты для структурирования, обработки и визуализации этих данных.</i>
 
 ---
 
-**Исходный код**:[1mk0v/MADI-Raspisanie-API](https://github.com/1mk0v/MADI-Raspisanie-API)
-
----
+**Исходный код**: <a>https://github.com/1mk0v/madi-raspisanie-api</a>

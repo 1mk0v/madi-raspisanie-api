@@ -1,7 +1,5 @@
 # About API
 
-# MADI Raspisanie API
-
 ## Department
   <h3>GET</h3>
   &nbsp;&nbsp;&nbsp;&nbsp;<b>Description</b><br/>
