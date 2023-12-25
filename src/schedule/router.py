@@ -10,6 +10,7 @@ router = APIRouter(prefix='/schedule', tags=['Schedule'])
 scheduleTable = ScheduleDatabaseInterface()
 raspisanieTeachers = madiRequests.RaspisanieTeachers()
 raspisanieGroups = madiRequests.RaspisanieGroups()
+raspisanieDepartments = madiRequests.RaspisanieDepartments()
 
 
 @router.get(
@@ -54,6 +55,27 @@ async def getTeacherSchedule(
         except ValueError as error:
             raise HTTPException(404, detail=error.args[0])
 
+@router.get(
+        "/department/{id}",
+        summary = "GET department schedule",
+        description="By default get actual schedule for department, but you can get old schedule",
+)
+async def getDepartmentSchedule(
+    id:int,
+    name:str = None,
+    sem = Depends(dependencies.current_sem),
+    year = Depends(dependencies.current_year)
+):
+    try:
+        html = await raspisanieDepartments.get_schedule(id, sem, year)
+        generator = Generator(bridge=madi.MADIBridge(html))
+        return await generator.generateSchedule()
+    except (exceptions.ConnectionError, ValueError) as error:
+        try:
+            return await scheduleTable.getByColumn(columnName='department_id', columnValue=id)
+        except ValueError as error:
+            raise HTTPException(404, detail=error.args[0])
+        
 @router.post(
         "/add",
         summary = "ADD schedule",
