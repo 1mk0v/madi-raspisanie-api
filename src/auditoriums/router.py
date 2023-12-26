@@ -33,34 +33,43 @@ async def getDepartmentAuditoriums(
         return auditoriums
     except (exceptions.ConnectionError, ValueError) as error:
         raise HTTPException(404, detail=error.args[0])
-    
+
 
 @router.get(
-        "/department/{id}/free",
+        "/department/{id}/busy",
         summary = "GET free departments auditoriums" 
 )
 async def getFreeDepartmentAuditoriums(
     id:int,
     sem = Depends(dependencies.current_sem),
-    year = Depends(dependencies.current_year)
+    year = Depends(dependencies.current_year),
 ):
+    days = {
+        0: 'Понедельник',
+        1: 'Вторник',
+        2: 'Среда',
+        3: 'Четверг',
+        4: 'Пятница',
+        5: 'Суббота',
+        6: 'Воскресенье'
+    }
+    weekdayType = {
+        1: ['Числитель', 'Числ. 1 раз в месяц', 'Еженедельно'],
+        0: ['Знаменатель', 'Знам. 1 раз в месяц', 'Еженедельно']
+    }
     currentDatetime = datetime.datetime.now()
+    busyAuditoriums = list()
     try:
-        busyAuditoriums = list()
-        freeAuditoriums = list()
         schedules:List[LessonInfo] = (await scheduleRouter.getDepartmentSchedule(id, sem=sem, year=year)).data
         for schedule in schedules:
-            if currentDatetime.time() > schedule.date.time.start \
-            and currentDatetime.time() < schedule.date.time.end:
-                if schedule.auditorium not in busyAuditoriums: busyAuditoriums.append(schedule.auditorium)
-                if schedule.auditorium in freeAuditoriums: freeAuditoriums.remove(schedule.auditorium)
-            if schedule.auditorium not in busyAuditoriums \
-                and currentDatetime.time() < schedule.date.time.start:
-                if datetime.datetime.combine(currentDatetime.now(), schedule.date.time.start) - currentDatetime > datetime.timedelta(minutes=30):
-                    freeAuditoriums.append(schedule.auditorium)
-        return freeAuditoriums
+            if schedule.weekday == days[currentDatetime.today().weekday()] \
+            and schedule.date.friequency in weekdayType[currentDatetime.isocalendar().week%2]:
+                if currentDatetime.time() > schedule.date.time.start \
+                and currentDatetime.time() < schedule.date.time.end:
+                    busyAuditoriums.append(schedule.auditorium)
+        return busyAuditoriums
     except Exception as error:
-        print(error)
+        print(error, 'error')
 
 
 @router.post(
