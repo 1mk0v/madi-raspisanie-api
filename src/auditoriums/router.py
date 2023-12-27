@@ -26,6 +26,15 @@ async def getFreeDepartmentAuditoriums():
     auditorium = Auditoriums()
     return await auditorium.getFreeAuditoriums()
 
+@router.get(
+        "/asu/schedule",
+        summary = "GET free departments auditoriums" 
+)
+async def getSchedule():
+    auditorium = Auditoriums()
+    return await auditorium.getScheduleTime()
+
+
 
 @router.post(
     "/add",

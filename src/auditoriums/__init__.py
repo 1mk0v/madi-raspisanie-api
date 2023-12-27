@@ -28,25 +28,35 @@ class Auditoriums:
     async def getAllAuditoriums(self):
         return await self.auditorium.getByColumn('department_id', self.departmentId)
     
-    async def getBusyAuditoriums(self):
-        busyAuditoriums = list()
+    async def _getBusyAuditoriums(self):
+        scheduleAuditorium = dict()
         currentDatetime = datetime.datetime.now()
-        schedules:List[LessonInfo] = (await scheduleRouter.getDepartmentSchedule(id = self.departmentId)).data
+        schedules:List[LessonInfo] = (await scheduleRouter.getDepartmentSchedule(
+            id = self.departmentId,
+            sem=utils.get_current_sem(),
+            year=utils.get_current_year()
+        )).data
+        lessonsTime = list()
         for schedule in schedules:
+            if schedule.date.time not in lessonsTime:
+                lessonsTime.append(schedule.date.time)
             if schedule.weekday == self.days[currentDatetime.today().weekday()] \
             and schedule.date.friequency in self.weekdayTypes[currentDatetime.isocalendar().week%2]:
-                if currentDatetime.time() > schedule.date.time.start \
-                and currentDatetime.time() < schedule.date.time.end:
-                    busyAuditoriums.append(schedule)
-        return busyAuditoriums
+                    if schedule.auditorium not in scheduleAuditorium.keys():
+                        scheduleAuditorium[schedule.auditorium] = list()
+                    if schedule.date.time not in scheduleAuditorium[schedule.auditorium]:
+                        scheduleAuditorium[schedule.auditorium].append(
+                            schedule.date.time
+                        )
+        return scheduleAuditorium, sorted(lessonsTime, key = lambda x: x.start)
     
     async def getFreeAuditoriums(self):
-        currentDatetime = datetime.datetime.now()
-        schedules:List[LessonInfo] = (await scheduleRouter.getDepartmentSchedule(id = self.departmentId,
-                                                                                 sem=utils.get_current_sem(),
-                                                                                 year=utils.get_current_year())).data
-        for schedule in schedules:
-            if schedule.weekday == self.days[currentDatetime.today().weekday()] \
-            and schedule.date.friequency in self.weekdayTypes[currentDatetime.isocalendar().week%2]:
-                if currentDatetime.time() > schedule.date.time.end:
-                    print(currentDatetime.time(), schedule, '\n')
+        scheduleAuditorium = dict()
+        freeAuditoriums = await self.auditorium.getByColumn('department_id', 61)
+        busyAuditoriums, scheduleTimeInfo = await self._getBusyAuditoriums()
+        for auditorium in busyAuditoriums:
+            for time in scheduleTimeInfo:
+                if time not in busyAuditoriums[auditorium]:
+                    if auditorium not in scheduleAuditorium.keys(): scheduleAuditorium[auditorium] = list()
+                    scheduleAuditorium[auditorium].append(time)
+        return scheduleAuditorium
