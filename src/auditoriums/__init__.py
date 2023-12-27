@@ -49,14 +49,17 @@ class Auditoriums:
                             schedule.date.time
                         )
         return scheduleAuditorium, sorted(lessonsTime, key = lambda x: x.start)
-    
+
     async def getFreeAuditoriums(self):
         scheduleAuditorium = dict()
-        freeAuditoriums = await self.auditorium.getByColumn('department_id', 61)
+        allAuditoriums = await self.auditorium.getByColumn('department_id', 61)
         busyAuditoriums, scheduleTimeInfo = await self._getBusyAuditoriums()
-        for auditorium in busyAuditoriums:
-            for time in scheduleTimeInfo:
-                if time not in busyAuditoriums[auditorium]:
-                    if auditorium not in scheduleAuditorium.keys(): scheduleAuditorium[auditorium] = list()
-                    scheduleAuditorium[auditorium].append(time)
+        for auditorium in allAuditoriums:
+            if auditorium['value'] not in busyAuditoriums.keys():
+                scheduleAuditorium[auditorium['value']] = scheduleTimeInfo
+            else:
+                for time in scheduleTimeInfo:
+                    if time not in busyAuditoriums[auditorium['value']]:
+                        if auditorium['value'] not in scheduleAuditorium.keys(): scheduleAuditorium[auditorium['value']] = list()
+                        scheduleAuditorium[auditorium['value']].append(time)
         return scheduleAuditorium
