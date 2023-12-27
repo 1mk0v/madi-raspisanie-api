@@ -20,7 +20,8 @@ async def getDepartmentAuditoriums():
 
 @router.get(
         "/asu/free",
-        summary = "GET free departments auditoriums" 
+        summary = "GET free departments auditoriums",
+        deprecated=True
 )
 async def getFreeDepartmentAuditoriums():
     auditorium = Auditoriums()
@@ -28,8 +29,9 @@ async def getFreeDepartmentAuditoriums():
 
 
 @router.get(
-        "/asu/schedule",
-        summary = "GET free departments auditoriums" 
+        "/asu/busy",
+        summary = "GET free departments auditoriums",
+        deprecated=True
 )
 async def getSchedule():
     auditorium = Auditoriums()
