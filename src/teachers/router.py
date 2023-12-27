@@ -1,14 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from database.interfaces.academic_community import AcademicCommunityDatabaseInterface
 from madi import RaspisanieTeachers
-from models import Response
+from models import Response, Community
 from database.schemas import teacher
 from bridges import madi, Generator
-from typing import List
 from requests import exceptions
-
-
-from dependencies import current_sem, current_year
+import dependencies
 
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
 raspisanie_teachers = RaspisanieTeachers()
@@ -18,8 +15,8 @@ teacherTable = AcademicCommunityDatabaseInterface(schema=teacher)
     '/',
 )
 async def get_all_teachers(
-    sem = Depends(current_sem),
-    year = Depends(current_year)
+    sem = Depends(dependencies.current_sem),
+    year = Depends(dependencies.current_year)
 ):
     try:
         html = await raspisanie_teachers.get(year, sem)
@@ -34,7 +31,7 @@ async def get_all_teachers(
 
 @router.post('/add')
 async def add_teacher(
-    teacher
+    teacher:Community
 ):
     try:
         return Response(statusCode=201, data=(await teacherTable.add(teacher)))
