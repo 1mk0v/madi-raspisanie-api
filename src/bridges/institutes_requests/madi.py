@@ -1,33 +1,18 @@
-import requests
+from . import BaseRequests
 from typing import List
 from bs4 import BeautifulSoup as bs
 
 
 
-class RaspisanieMADI():
+class RaspisanieMADI(BaseRequests):
 
     """
         Методы для составления запросов с сайта МАДИ
         Актуальный сайт на 2023 год https://raspisanie.madi.ru/tplan
     """
 
-    def __init__(self) -> None:
-        self.url = 'https://raspisanie.madi.ru/tplan/tasks/{}'
-
-    def _get(self, url, data:dict = None) -> requests.Response:
-        return requests.get(self.url.format(url), data)
-    
-    def _post(self, url, data:dict = None, ) -> requests.Response:
-        return requests.post(self.url.format(url), data = data)
-    
-    def _schedule(self, data:dict) -> requests.Response:
-        return self._post(url="tableFiller.php", data=data)
-
-    def _getPageElementOrException(self, response:requests.Response, page_element:str, class_name:str=None, detail:str='Not found') -> List[bs] | bs:
-        html = bs(response.text, 'lxml').find_all(name=page_element, attrs={"class":class_name})
-        if len(html) < 1:
-            raise ValueError(detail)
-        return html
+    def __init__(self, url: str = 'https://raspisanie.madi.ru/tplan/tasks/{}') -> None:
+        super().__init__(url)
 
 
 class RaspisanieGroups(RaspisanieMADI):

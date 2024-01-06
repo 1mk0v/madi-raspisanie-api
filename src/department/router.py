@@ -1,6 +1,6 @@
 from database.interfaces import Interface as DepartmentDatabaseInterface
 from bridges import madi, Generator
-from bridges.requests import madi as madiRequests
+from bridges.institutes_requests import madi as madiRequests
 from database.schemas import department
 from models import Essence as Department, Response
 from fastapi import APIRouter, HTTPException

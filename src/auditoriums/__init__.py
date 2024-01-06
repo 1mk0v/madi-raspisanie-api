@@ -1,4 +1,4 @@
-from bridges.requests import madi as madiRequirements 
+from bridges.institutes_requests import madi as madiRequirements 
 from database.interfaces import Interface 
 from database.schemas import auditorium
 from models import Community as AuditoriumModel, LessonInfo, List

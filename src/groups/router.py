@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from bridges import Generator, madi
-from bridges.requests import madi as madiRequests
+from bridges.institutes_requests import madi as madiRequests
 from database.interfaces.academic_community import AcademicCommunityDatabaseInterface
 from models import Community, Response
 from database.schemas import group
