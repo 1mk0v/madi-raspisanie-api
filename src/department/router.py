@@ -1,7 +1,6 @@
-
-from madi import RaspisanieDepartments
 from database.interfaces import Interface as DepartmentDatabaseInterface
 from bridges import madi, Generator
+from bridges.requests import madi as madiRequests
 from database.schemas import department
 from models import Essence as Department, Response
 from fastapi import APIRouter, HTTPException
@@ -9,7 +8,7 @@ from requests import exceptions
 
 router = APIRouter(prefix='/department', tags=['Departments'])
 
-raspisanie_departments = RaspisanieDepartments()
+raspisanie_departments = madiRequests.RaspisanieDepartments()
 departmentTable = DepartmentDatabaseInterface(model=Department, schema=department)
 
 @router.get(

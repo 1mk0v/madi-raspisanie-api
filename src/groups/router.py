@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from madi import RaspisanieGroups
-from bridges import Generator, madi 
+from bridges import Generator, madi
+from bridges.requests import madi as madiRequests
 from database.interfaces.academic_community import AcademicCommunityDatabaseInterface
 from models import Community, Response
 from database.schemas import group
@@ -8,7 +8,7 @@ from requests import exceptions
 
 router = APIRouter(prefix='/group', tags=['Groups'])
 
-raspisanieGroups = RaspisanieGroups()
+raspisanieGroups = madiRequests.RaspisanieGroups()
 groupTable = AcademicCommunityDatabaseInterface(schema=group)
 
 @router.get(

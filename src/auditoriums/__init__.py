@@ -1,4 +1,4 @@
-from madi import RaspisanieDepartments
+from bridges.requests import madi as madiRequirements 
 from database.interfaces import Interface 
 from database.schemas import auditorium
 from models import Community as AuditoriumModel, LessonInfo, List
@@ -9,7 +9,7 @@ class Auditoriums:
 
     def __init__(self, dep_id = 61) -> None:
         self.auditorium = Interface(AuditoriumModel, auditorium)
-        self.raspisanieDepartments = RaspisanieDepartments()
+        self.raspisanieDepartments = madiRequirements.RaspisanieDepartments()
         self.departmentId = dep_id
         self.days = {
             0: 'Понедельник',

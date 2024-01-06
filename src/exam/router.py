@@ -5,7 +5,7 @@ from requests import exceptions
 from fastapi import APIRouter, HTTPException, Depends
 import dependencies
 from bridges import madi, Generator
-import madi as madiRequests
+from bridges.requests import madi as madiRequests
 
 
 router = APIRouter(prefix='/exam', tags=['Exam'])

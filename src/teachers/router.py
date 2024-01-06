@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from database.interfaces.academic_community import AcademicCommunityDatabaseInterface
-from madi import RaspisanieTeachers
+from bridges.requests import madi as madiRequests
 from models import Response, Community
 from database.schemas import teacher
 from bridges import madi, Generator
@@ -8,7 +8,7 @@ from requests import exceptions
 import dependencies
 
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
-raspisanie_teachers = RaspisanieTeachers()
+raspisanie_teachers = madiRequests.RaspisanieTeachers()
 teacherTable = AcademicCommunityDatabaseInterface(schema=teacher)
 
 @router.get(

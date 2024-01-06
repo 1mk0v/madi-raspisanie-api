@@ -3,7 +3,7 @@ from models import Response, LessonInfo
 from fastapi import APIRouter, HTTPException, Depends
 from requests import exceptions
 import dependencies
-import madi as madiRequests
+from bridges.requests import madi as madiRequests 
 from bridges import madi, Generator
 
 router = APIRouter(prefix='/schedule', tags=['Schedule'])
