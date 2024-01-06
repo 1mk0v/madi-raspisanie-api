@@ -1,5 +1,4 @@
 from fastapi import status
-from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 class BaseAppException(BaseException):
 
