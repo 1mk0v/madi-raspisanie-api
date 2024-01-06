@@ -1,7 +1,8 @@
+from requests import Response
 from . import BaseRequests
 from typing import List
 from bs4 import BeautifulSoup as bs
-
+import exceptions as exc
 
 
 class RaspisanieMADI(BaseRequests):
@@ -14,6 +15,22 @@ class RaspisanieMADI(BaseRequests):
     def __init__(self, url: str = 'https://raspisanie.madi.ru/tplan/tasks/{}') -> None:
         super().__init__(url)
 
+        
+    def find_and_return_exceptions(func):
+        def wrapper(*args, **kwargs):
+            status_code = kwargs['response'].status_code
+            if status_code > 399 and status_code < 500:
+                raise exc.NotFoundError(
+                    status_code=status_code,
+                    detail=bs(kwargs['response'].text, 'lxml').find(name='p').text
+                )
+            return func(*args, **kwargs)
+        return wrapper
+
+    @find_and_return_exceptions
+    def _getPageElementOrException(self, response: Response, page_element: str, class_name: str = None, detail: str = None) -> List[bs] | bs:
+        return super()._getPageElementOrException(response, page_element, class_name, detail)
+    
 
 class RaspisanieGroups(RaspisanieMADI):
 
@@ -136,7 +153,8 @@ class RaspisanieDepartments(RaspisanieMADI):
             )
         return self._getPageElementOrException(
             response=response,
-            page_element='option'
+            page_element='option',
+            detail='Schedule of department not found'
         )
     
     async def get_teachers(self, id:int, sem:int, year:int):
@@ -169,7 +187,7 @@ class RaspisanieDepartments(RaspisanieMADI):
             response=response,
             page_element='table',
             class_name='timetable',
-            detail='Department audits not found'
+            detail='Department auditoriums not found'
         )[0]
     
     async def get_schedule(self, id:int, sem:int, year:int):
