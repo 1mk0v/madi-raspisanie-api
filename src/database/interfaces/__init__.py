@@ -2,6 +2,7 @@ from typing import List
 from sqlalchemy import Table
 from database.database import db
 from pydantic import BaseModel
+import exceptions as exc
 
 class Interface():
 
@@ -14,7 +15,7 @@ class Interface():
         if (type(object) == list and len(object) == 0) \
             or (type(object) == dict and object == dict()) \
             or (type(object) == int and object == 0):
-            raise ValueError('The are no elements in table')
+            raise exc.NotFoundError()
         return object
 
     async def _getValue(self, schema:Table, columnName:str, elementName:str, element, columnNumber:int = 1):

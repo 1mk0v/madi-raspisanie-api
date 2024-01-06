@@ -4,7 +4,8 @@ from bridges.institutes_requests import madi as madiRequests
 from database.interfaces.academic_community import AcademicCommunityDatabaseInterface
 from models import Community, Response
 from database.schemas import group
-from requests import exceptions
+from requests import exceptions as requests_exc
+import exceptions as exc
 
 router = APIRouter(prefix='/group', tags=['Groups'])
 
@@ -21,11 +22,11 @@ async def get_groups():
         html = await raspisanieGroups.get()
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateListOfCommunity()
-    except (exceptions.ConnectionError, ValueError):
+    except (requests_exc.ConnectionError, exc.NotFoundError):
         try:
             return Response(statusCode=200, data = await groupTable.getActual())
-        except ValueError:
-            raise HTTPException(404)
+        except exc.NotFoundError as error:
+            raise HTTPException(status_code=error.status_code, detail=error.detail)
 
 
 @router.post(
@@ -37,8 +38,8 @@ async def add_group(group:Community):
     try:
         await groupTable.add(group)
         return Response(statusCode = 201, data=group)
-    except Exception as error:
-        raise HTTPException(500, detail=error.args)
+    except exc.BaseClientException as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail)
 
 
 @router.delete(

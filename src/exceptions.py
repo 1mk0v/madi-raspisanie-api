@@ -26,7 +26,7 @@ class BaseServerException(BaseAppException):
 class NotFoundError(BaseClientException):
 
     def __init__(self, *args: object, detail: str = 
-                 "The requested data was not found. They may not be on the {} website or in the database.",
+                 "The requested data was not found. They may not be on the website or in the database.",
                  status_code=status.HTTP_404_NOT_FOUND) -> None:
         super().__init__(*args, detail=detail, status_code=status_code)
 

@@ -4,7 +4,8 @@ from bridges.institutes_requests import madi as madiRequests
 from models import Response, Community
 from database.schemas import teacher
 from bridges import madi, Generator
-from requests import exceptions
+from requests import exceptions as requests_exc
+import exceptions as exc
 import dependencies
 
 router = APIRouter(prefix='/teacher', tags=['Teachers'])
@@ -22,11 +23,11 @@ async def get_all_teachers(
         html = await raspisanie_teachers.get(year, sem)
         generator = Generator(madi.MADIBridge(html))
         return await generator.generateListOfCommunity()
-    except (exceptions.ConnectionError, ValueError):
+    except (requests_exc.ConnectionError, exc.NotFoundError):
         try:
             return Response(statusCode=200, data=(await teacherTable.getActual()))
-        except ValueError:
-            return HTTPException(404)
+        except exc.BaseClientException as error:
+            raise HTTPException(status_code=error.status_code, detail=error.detail)
     
 
 @router.post('/add')
@@ -35,8 +36,8 @@ async def add_teacher(
 ):
     try:
         return Response(statusCode=201, data=(await teacherTable.add(teacher)))
-    except Exception as err:
-        raise HTTPException(500, detail=err.args[0])
+    except exc.BaseAppException as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail)
     
 
 @router.delete('/{id}/delete')
