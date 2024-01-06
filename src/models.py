@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 from pydantic import BaseModel
 import datetime
 
@@ -34,4 +34,4 @@ class LessonInfo(Schedule):
 class Response(BaseModel):
     statusCode:int
     detail:str = 'Success'
-    data: int | str | List | Essence | Community | None = None
+    data: Any | None = None
