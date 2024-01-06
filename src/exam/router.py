@@ -1,12 +1,12 @@
 from database.interfaces.schedule import ExaminationDatabaseInterface
 from database.schemas import exam
 from models import Response, Schedule
-from requests import exceptions
 from fastapi import APIRouter, HTTPException, Depends
 import dependencies
 from bridges import madi, Generator
-import madi as madiRequests
-
+from bridges.institutes_requests import madi as madiRequests
+from requests import exceptions as requests_exc
+import exceptions as exc
 
 router = APIRouter(prefix='/exam', tags=['Exam'])
 examTable = ExaminationDatabaseInterface(schema=exam)
@@ -29,11 +29,11 @@ async def getGroupExam(
         html = await raspisanieGroups.get_exam(id,sem,year,name)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
-    except (exceptions.ConnectionError, ValueError):
+    except (requests_exc.ConnectionError, exc.NotFoundError):
         try:
             return Response(statusCode = 200, data=await examTable.getByGroupId(id))
-        except ValueError as error:
-            raise HTTPException(404, detail=error.args[0])
+        except exc.NotFoundError as error:
+            raise HTTPException(status_code=error.status_code, detail=error.detail)
     
 
 @router.get(
@@ -51,19 +51,18 @@ async def getTeacherExam(
         html = await raspisanieTeachers.get_exam(id, year, sem)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
-    except (exceptions.ConnectionError, ValueError):
+    except (requests_exc.ConnectionError, exc.NotFoundError):
         try:
             return Response(statusCode = 200, data = await examTable.getByTeacherId(id))
-        except ValueError as error:
-             raise HTTPException(404, detail=error.args[0])
-
+        except exc.BaseClientException as error:
+            raise HTTPException(status_code=error.status_code, detail=error.detail)
 
 @router.post("/add")
 async def add(exam:Schedule):
     try:
         return Response(statusCode=201, data=await examTable.add(exam))
-    except Exception as error:
-        raise HTTPException(500, detail=error.args[0])
+    except exc.BaseClientException as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail)
 
 
 @router.delete('/{id}/delete')

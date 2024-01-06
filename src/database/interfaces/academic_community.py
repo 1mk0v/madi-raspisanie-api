@@ -1,7 +1,7 @@
 from sqlalchemy import Table
 from . import Interface
 from utils import get_current_year
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel
 from models import Community
 from typing import List
 
@@ -13,7 +13,7 @@ class AcademicCommunityDatabaseInterface(Interface):
         super().__init__(model, schema)
 
     async def getByRowId(self, id):
-        data = await self.getById(id)
+        data:Community = await self.getById(id)
         return self.model(
             id = data.id,
             value = data.value,

@@ -1,29 +1,38 @@
-from fastapi import APIRouter, HTTPException, Depends
-from database.interfaces.academic_community import AcademicCommunityDatabaseInterface
-from madi import RaspisanieDepartments
-from database.schemas import teacher
-from bridges import madi, Generator
-from requests import exceptions
-import dependencies
+from fastapi import APIRouter
+from database.interfaces import Interface
+from bridges.institutes_requests import madi as madiRequirements
+from models import Community
+from database.schemas import auditorium
+from . import Auditoriums
 
-router = APIRouter(prefix='/auditoriums', tags=['Auditoriums'])
-raspisanieDepartments = RaspisanieDepartments()
-teacherTable = AcademicCommunityDatabaseInterface(schema=teacher)
+router = APIRouter(prefix='/auditoriums', tags=['ASU Auditoriums'])
+raspisanieDepartments = madiRequirements.RaspisanieDepartments()
+auditoriumsTable = Interface(schema=auditorium, model=Community)
 
 @router.get(
-        "/department/{id}",
+        "/asu",
         summary = "GET department auditoriums",
-        # description="By default get actual schedule for teacher, but you can get old schedule",
 )
-async def getDepartmentAuditoriums(
-    id:int,
-    name:str = None,
-    sem = Depends(dependencies.current_sem),
-    year = Depends(dependencies.current_year)
-):
-    try:
-        html = await raspisanieDepartments.get_schedule(id, sem, year)
-        print(html)
-        return None
-    except (exceptions.ConnectionError, ValueError) as error:
-        raise HTTPException(404, detail=error.args[0])
+async def getDepartmentAuditoriums():
+    auditorium = Auditoriums()
+    return await auditorium.getAllAuditoriums()
+
+
+@router.get(
+        "/asu/free",
+        summary = "GET free departments auditoriums",
+        deprecated=True
+)
+async def getFreeDepartmentAuditoriums():
+    auditorium = Auditoriums()
+    return await auditorium.getFreeAuditoriums()
+
+
+@router.get(
+        "/asu/busy",
+        summary = "GET free departments auditoriums",
+        deprecated=True
+)
+async def getSchedule():
+    auditorium = Auditoriums()
+    return (await auditorium._getBusyAuditoriums())[0]

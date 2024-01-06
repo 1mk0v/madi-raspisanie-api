@@ -14,5 +14,8 @@ def get_current_sem() -> int:
         current_sem = 1
     return current_sem
 
+def get_current_day() -> str:
+    return int(datetime.today().weekday())
+    
 def removeDuplicateSpaces(string: str) -> str():
     return " ".join(string.split())
