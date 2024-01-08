@@ -1,15 +1,8 @@
 FROM python:3.10
-
-RUN mkdir /opt/madi_api
-# 
-WORKDIR /opt/madi_api
-#
-COPY ./requirements.txt .
-# 
-RUN pip install --user --no-cache-dir --upgrade -r requirements.txt
-# 
+RUN mkdir /api
+WORKDIR /api
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 COPY . .
-#
-WORKDIR ./src
-# 
-CMD ["uvicorn", "main:app", "--port", "8080"]
+WORKDIR src
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
