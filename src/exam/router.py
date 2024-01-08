@@ -22,7 +22,7 @@ raspisanieTeachers = madiRequests.RaspisanieTeachers()
 async def getGroupExam(
     id:int,
     name:str = None,
-    sem = Depends(dependencies.current_sem),
+    sem = Depends(dependencies.current_exam_sem),
     year = Depends(dependencies.current_year)
 ):
     try:
@@ -44,7 +44,7 @@ async def getGroupExam(
 async def getTeacherExam(
     id:int,
     name:str = None,
-    sem = Depends(dependencies.current_sem),
+    sem = Depends(dependencies.current_exam_sem),
     year = Depends(dependencies.current_year)
 ):
     try:
