@@ -22,7 +22,6 @@ def get_current_exam_sem() -> int:
     current_month = int(datetime.today().strftime("%m"))
     if current_month > 10 or current_month < 5:
         current_sem = 1
-    print(current_sem, current_month)
     return current_sem
     
 def removeDuplicateSpaces(string: str) -> str():
