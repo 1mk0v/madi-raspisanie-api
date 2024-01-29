@@ -2,11 +2,11 @@ import os
 import databases
 from sqlalchemy import Column, Integer, String, Table, ForeignKey, Time, MetaData, create_engine
 
-DB_USER = os.getenv("DB_USER")
-DB_PSWD = os.getenv("DB_PSWD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.environ.get("DB_USER")
+DB_PSWD = os.environ.get("DB_PSWD")
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_NAME = os.environ.get("DB_NAME")
 
 DATABASE_URL = f"postgresql+pg8000://{DB_USER}:{DB_PSWD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
@@ -116,6 +116,8 @@ exam = Table(
     Column("type_id", Integer, ForeignKey("type.id"), default = None),
     Column("auditorium_id", Integer, ForeignKey("auditorium.id"), default= None)
 )
+
+print(DATABASE_URL)
 
 engine = create_engine(
     DATABASE_URL
