@@ -27,21 +27,3 @@ async def getDepartments():
             return Response(statusCode=200, data=(await departmentTable.getAll()))
         except exc.NotFoundError as error:
             raise HTTPException(status_code=error.status_code, detail=error.detail)
-
-
-@router.post('/add')
-async def addDepartment(
-    department:Department
-):
-    try:
-        await departmentTable.add(department)
-        return Response(statusCode=201, data=department)
-    except exc.BaseClientException as error:
-        raise HTTPException(status_code=error.status_code, detail=error.detail)
-
-
-@router.delete('/{id}/delete')
-async def deleteDepartment(
-    id:int
-):
-    return await departmentTable.delete(id)

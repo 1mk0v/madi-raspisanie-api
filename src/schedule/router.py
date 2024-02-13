@@ -77,18 +77,3 @@ async def getDepartmentSchedule(
             return await scheduleTable.getByColumn(columnName='department_id', columnValue=id)
         except exc.BaseClientException as error:
             raise HTTPException(status_code=error.status_code, detail=error.detail)
-        
-@router.post(
-        "/add",
-        summary = "ADD schedule",
-        description="",
-)
-async def addSchedule(schedule:LessonInfo):
-    try:
-        return await scheduleTable.add(schedule)
-    except exc.BaseClientException as error:
-        raise HTTPException(status_code=error.status_code, detail=error.detail)
-
-@router.delete('/{id}/delete')
-async def delSchedule(id:int):
-    return await scheduleTable.delete(id=id)
