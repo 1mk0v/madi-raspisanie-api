@@ -1,5 +1,5 @@
-from database.interfaces.schedule import ExaminationDatabaseInterface
-from database.schemas import exam
+
+# from database.schemas import exam
 from models import Response, Schedule
 from fastapi import APIRouter, HTTPException, Depends
 import dependencies
@@ -9,7 +9,7 @@ from requests import exceptions as requests_exc
 import exceptions as exc
 
 router = APIRouter(prefix='/exam', tags=['Exam'])
-examTable = ExaminationDatabaseInterface(schema=exam)
+# examTable = ExaminationDatabaseInterface(schema=exam)
 raspisanieGroups = madiRequests.RaspisanieGroups()
 raspisanieTeachers = madiRequests.RaspisanieTeachers()
 
@@ -29,11 +29,8 @@ async def getGroupExam(
         html = await raspisanieGroups.get_exam(id,sem,year,name)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
-    except (requests_exc.ConnectionError, exc.NotFoundError):
-        try:
-            return Response(statusCode = 200, data=await examTable.getByGroupId(id))
-        except exc.NotFoundError as error:
-            raise HTTPException(status_code=error.status_code, detail=error.detail)
+    except (requests_exc.ConnectionError, exc.NotFoundError) as error:
+        raise HTTPException(status_code=500, detail=error.args[0])
     
 
 @router.get(
@@ -51,8 +48,5 @@ async def getTeacherExam(
         html = await raspisanieTeachers.get_exam(id, year, sem)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
-    except (requests_exc.ConnectionError, exc.NotFoundError):
-        try:
-            return Response(statusCode = 200, data = await examTable.getByTeacherId(id))
-        except exc.BaseClientException as error:
-            raise HTTPException(status_code=error.status_code, detail=error.detail)
+    except (requests_exc.ConnectionError, exc.NotFoundError) as error:
+        raise HTTPException(status_code=500, detail=error.args[0])

@@ -1,13 +1,12 @@
 from fastapi import APIRouter
-from database.interfaces import Interface
 from bridges.institutes_requests import madi as madiRequirements
 from models import Community
-from database.schemas import auditorium
+# from database.schemas import auditorium
 from . import Auditoriums
 
 router = APIRouter(prefix='/auditoriums', tags=['ASU Auditoriums'])
 raspisanieDepartments = madiRequirements.RaspisanieDepartments()
-auditoriumsTable = Interface(schema=auditorium, model=Community)
+# auditoriumsTable = Interface(schema=auditorium, model=Community)
 
 @router.get(
         "/asu",

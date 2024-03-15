@@ -1,6 +1,5 @@
 from bridges.institutes_requests import madi as madiRequirements 
-from database.interfaces import Interface 
-from database.schemas import auditorium
+# from database.schemas import auditorium
 from models import Community as AuditoriumModel, LessonInfo, List
 from schedule import router as scheduleRouter
 import datetime
@@ -8,7 +7,7 @@ import utils
 class Auditoriums:
 
     def __init__(self, dep_id = 61) -> None:
-        self.auditorium = Interface(AuditoriumModel, auditorium)
+        # self.auditorium = Interface(AuditoriumModel, "auditorium")
         self.raspisanieDepartments = madiRequirements.RaspisanieDepartments()
         self.departmentId = dep_id
         self.days = {

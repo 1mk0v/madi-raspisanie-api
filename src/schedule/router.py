@@ -1,4 +1,3 @@
-from database.interfaces.schedule import ScheduleDatabaseInterface
 from models import Response, LessonInfo
 from fastapi import APIRouter, HTTPException, Depends
 from requests import exceptions as requests_exc
@@ -9,7 +8,6 @@ import exceptions as exc
 
 
 router = APIRouter(prefix='/schedule', tags=['Schedule'])
-scheduleTable = ScheduleDatabaseInterface()
 raspisanieTeachers = madiRequests.RaspisanieTeachers()
 raspisanieGroups = madiRequests.RaspisanieGroups()
 raspisanieDepartments = madiRequests.RaspisanieDepartments()
@@ -30,11 +28,8 @@ async def getGroupSchedule(
         html = await raspisanieGroups.get_schedule(id, sem, year, name)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
-    except (requests_exc.ConnectionError, exc.NotFoundError):
-        try:
-            return Response(statusCode=200, data=(await scheduleTable.getByGroupId(id)))
-        except exc.BaseClientException as error:
-            raise HTTPException(status_code=error.status_code, detail=error.detail)
+    except (requests_exc.ConnectionError, exc.NotFoundError) as error:
+        raise HTTPException(status_code=500, detail=error.args[0])
 
 @router.get(
         "/teacher/{id}",
@@ -52,10 +47,8 @@ async def getTeacherSchedule(
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
     except (requests_exc.ConnectionError, exc.NotFoundError) as error:
-        try:
-            return await scheduleTable.getByTeacherId(id)
-        except exc.BaseClientException as error:
-            raise HTTPException(status_code=error.status_code, detail=error.detail)
+        raise HTTPException(status_code=500, detail=error.args[0])
+    
 
 @router.get(
         "/department/{id}",
@@ -72,8 +65,5 @@ async def getDepartmentSchedule(
         html = await raspisanieDepartments.get_schedule(id, sem, year)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
-    except (requests_exc.ConnectionError, exc.NotFoundError) as error:
-        try:
-            return await scheduleTable.getByColumn(columnName='department_id', columnValue=id)
-        except exc.BaseClientException as error:
-            raise HTTPException(status_code=error.status_code, detail=error.detail)
+    except (requests_exc.ConnectionError, exc.NotFoundError)  as error:
+        raise HTTPException(status_code=500, detail=error.args[0])
