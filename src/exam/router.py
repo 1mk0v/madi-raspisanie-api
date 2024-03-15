@@ -56,17 +56,3 @@ async def getTeacherExam(
             return Response(statusCode = 200, data = await examTable.getByTeacherId(id))
         except exc.BaseClientException as error:
             raise HTTPException(status_code=error.status_code, detail=error.detail)
-
-@router.post("/add")
-async def add(exam:Schedule):
-    try:
-        return Response(statusCode=201, data=await examTable.add(exam))
-    except exc.BaseClientException as error:
-        raise HTTPException(status_code=error.status_code, detail=error.detail)
-
-
-@router.delete('/{id}/delete')
-async def delExam(id:int):
-    return await examTable.delete(id)
-
-

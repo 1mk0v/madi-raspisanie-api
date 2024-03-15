@@ -1,8 +1,14 @@
-from sqlalchemy import Column, Integer, String, Table, ForeignKey, Time
+import os 
 import databases
-from sqlalchemy import  MetaData, create_engine
+from sqlalchemy import Column, Integer, String, Table, ForeignKey, Time, MetaData, create_engine
 
-DATABASE_URL = "sqlite:///./database/test.db"
+DB_USER = os.environ.get("DB_USER")
+DB_PSWD = os.environ.get("DB_PSWD")
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_NAME = os.environ.get("DB_NAME")
+
+DATABASE_URL = f"postgresql+pg8000://{DB_USER}:{DB_PSWD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 database = databases.Database(DATABASE_URL)
 
@@ -111,7 +117,9 @@ exam = Table(
     Column("auditorium_id", Integer, ForeignKey("auditorium.id"), default= None)
 )
 
+print(DATABASE_URL)
+
 engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
+    DATABASE_URL
 )
 metadata.create_all(engine)

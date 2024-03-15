@@ -28,20 +28,3 @@ async def get_all_teachers(
             return Response(statusCode=200, data=(await teacherTable.getActual()))
         except exc.BaseClientException as error:
             raise HTTPException(status_code=error.status_code, detail=error.detail)
-    
-
-@router.post('/add')
-async def add_teacher(
-    teacher:Community
-):
-    try:
-        return Response(statusCode=201, data=(await teacherTable.add(teacher)))
-    except exc.BaseAppException as error:
-        raise HTTPException(status_code=error.status_code, detail=error.detail)
-    
-
-@router.delete('/{id}/delete')
-async def delete_teacher(
-    id:int
-):
-    return await teacherTable.delete(id)

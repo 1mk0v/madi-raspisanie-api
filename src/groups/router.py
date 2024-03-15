@@ -27,27 +27,3 @@ async def get_groups():
             return Response(statusCode=200, data = await groupTable.getActual())
         except exc.NotFoundError as error:
             raise HTTPException(status_code=error.status_code, detail=error.detail)
-
-
-@router.post(
-        '/add',
-        summary = "ADD group",
-        description="Add one group by thier model"
-)
-async def add_group(group:Community):
-    try:
-        await groupTable.add(group)
-        return Response(statusCode = 201, data=group)
-    except exc.BaseClientException as error:
-        raise HTTPException(status_code=error.status_code, detail=error.detail)
-
-
-@router.delete(
-        '/{id}/delete',
-        summary = "DELETE group",
-        description="DELETE one group by thier id",
-)
-async def delete_group(
-    id:int
-):
-    return await groupTable.delete(id)
