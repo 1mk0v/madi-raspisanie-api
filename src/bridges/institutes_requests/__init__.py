@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup as bs
 from typing import List
-from exceptions import NotFoundError
+from .exceptions import EmptyResultError
 
 class BaseRequests():
 
@@ -20,5 +20,5 @@ class BaseRequests():
     def _getPageElementOrException(self, response:requests.Response, page_element:str, class_name:str=None, detail:str=None) -> List[bs] | bs:
         html = bs(response.text, 'lxml').find_all(name=page_element, attrs={"class":class_name})
         if len(html) < 1:
-            raise NotFoundError(detail)
+            raise EmptyResultError(detail)
         return html

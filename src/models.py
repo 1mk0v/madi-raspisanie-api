@@ -7,19 +7,16 @@ class Essence(BaseModel):
     value:str | None = None 
 
 class Community(Essence):
-    department_id:int | None = None
+    department:str | None = None
 
 class Time(BaseModel):
     start:datetime.time | None = None
     end:datetime.time | None = None
 
-class Date(BaseModel):
+class Lesson(BaseModel):
     day:str | None = None
     friequency: str | None = None
     time:Time | None = None
-
-class Lesson(BaseModel):
-    date:Date
     discipline:str | List = None
     type:str | None = None
     auditorium:str | None = None
@@ -32,6 +29,12 @@ class LessonInfo(Schedule):
     weekday:str | None = None
 
 class Response(BaseModel):
-    statusCode:int
+    statusCode:int = 200
     detail:str = 'Success'
-    data: Any | None = None
+    data: List[Essence] | List[Community] | List[LessonInfo] | List[Any] | None = None
+
+class ResponseWithCommunity(Response):
+    data: List[Community]
+
+class ResponseWithLessonInfo(Response):
+    data: List[LessonInfo]

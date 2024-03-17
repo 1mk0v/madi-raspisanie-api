@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from bridges.institutes_requests import madi as madiRequirements
-from models import Community
+# from models import CommunityGet
 # from database.schemas import auditorium
 from . import Auditoriums
 

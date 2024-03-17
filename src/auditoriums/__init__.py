@@ -1,7 +1,7 @@
 from bridges.institutes_requests import madi as madiRequirements 
 # from database.schemas import auditorium
-from models import Community as AuditoriumModel, LessonInfo, List
-from schedule import router as scheduleRouter
+from models import  LessonInfo, List
+from events import router as scheduleRouter
 import datetime
 import utils
 class Auditoriums:

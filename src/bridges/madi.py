@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup as bs
-from models import Date, Time, Community, LessonInfo, Schedule, Essence
+from models import Time, Community, LessonInfo, Schedule, Essence
 from bridges import Bridge
 from typing import Any, List
 from utils import removeDuplicateSpaces
@@ -21,9 +21,9 @@ class Formater():
         def setScheduleGroup(self, value:List[str]):
             if len(value) > 3:
                 time = value[0].split(' - ')
-                date = Date(friequency=value[3], time=Time(start=time[0], end=time[1])) 
                 self.__schedule = LessonInfo(
-                    date=date,
+                    friequency=value[3], 
+                    time=Time(start=time[0], end=time[1]),
                     discipline=value[1],
                     type=value[2],
                     auditorium=value[4],
@@ -33,16 +33,16 @@ class Formater():
             else:
                 self.__schedule = LessonInfo(
                     weekday=value[0],
-                    type=value[1], 
-                    date=Date(friequency=value[2]),
+                    type=value[1],
+                    friequency=value[2],
                     discipline=self.weekday
                 )
 
         def setScheduleTeacher(self, value:List[str]):
             time = value[0].split(' - ')
-            date = Date(friequency=value[4], time=Time(start=time[0], end=time[1])) 
             self.__schedule = LessonInfo(
-                    date=date,
+                    friequency=value[4],
+                    time=Time(start=time[0], end=time[1]),
                     discipline=value[2],
                     type=value[3],
                     auditorium=value[5],
@@ -51,10 +51,10 @@ class Formater():
                 )
 
         def setScheduleDepartment(self, value:List[str]):
-            time = value[0].split(' - ')
-            date = Date(friequency=value[1], time=Time(start=time[0], end=time[1])) 
+            time = value[0].split(' - ') 
             self.__schedule = LessonInfo(
-                    date=date,
+                    friequency=value[1],
+                    time=Time(start=time[0], end=time[1]),
                     discipline=value[4],
                     type=value[5],
                     auditorium=value[2],
@@ -98,9 +98,9 @@ class Formater():
         
         def setExamGroup(self, value:List[str]):
             time = value[1].split(' ')
-            date = Date(day=time[0], time=Time(start=time[1],end=None)) 
             self.__schedule = Schedule(
-                    date=date,
+                    day=time[0], 
+                    time=Time(start=time[1],end=None),
                     discipline=value[0],
                     type='Экзамен',
                     auditorium=value[2],
@@ -109,9 +109,9 @@ class Formater():
             
         def setExamTeacher(self, value:List[str]):
             time = value[1].split(' ')
-            date = Date(day=time[0], time=Time(start=time[1],end=None)) 
             self.__schedule = Schedule(
-                    date=date,
+                    day=time[0],
+                    time=Time(start=time[1],end=None),
                     discipline=value[3],
                     type='Экзамен',
                     auditorium=value[2],
