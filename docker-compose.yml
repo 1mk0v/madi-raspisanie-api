@@ -3,6 +3,8 @@ services:
     image: postgres:13.3
     container_name: schedule-store
     command: -p 5435
+    ports:
+      - 6666:5435
     expose:
       - 5435
     env_file:

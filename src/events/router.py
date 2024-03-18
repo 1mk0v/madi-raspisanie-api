@@ -1,4 +1,4 @@
-from models import LessonInfo, ResponseWithLessonInfo
+from models import LessonInfo, ResponseWithLessonInfo, Time, Community
 from fastapi import APIRouter, HTTPException, Depends
 from requests import exceptions as requests_exc
 from bridges.institutes_requests import madi as madiRequests 
@@ -22,7 +22,15 @@ raspisanieDepartments = madiRequests.RaspisanieDepartments()
 async def getGroupSchedule():
     try:
         event_table = EventsTableInterface()
-        print(await event_table.get_by_type())
+        res = (await event_table.get_by_type('Лекция')).all()
+        table = list()
+        for item in res:
+            print(item._mapping)
+            time = Time.model_validate(item._mapping)
+            lesson_info = LessonInfo.model_validate(item._mapping)
+            lesson_info.time = time
+            table.append(lesson_info)
+        return table
     except (requests_exc.ConnectionError, exc.NotFoundError) as error:
         raise HTTPException(status_code=500, detail=error.args[0])
 
