@@ -12,7 +12,7 @@ sync_engine = create_engine(
 
 ASYNC_DB_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PSWD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 async_engine = create_async_engine(
-    ASYNC_DB_URL, echo=True
+    ASYNC_DB_URL, echo=True, pool_recycle=3600
 )
 
 class DatabaseInterface():
