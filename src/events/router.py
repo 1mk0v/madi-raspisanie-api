@@ -15,19 +15,22 @@ raspisanieDepartments = madiRequests.RaspisanieDepartments()
 
 
 @router.get(
-        "",
+        "/",
         summary = "GET group schedule",
         description="By default get actual schedule for any group, but you can get old schedule",
+        deprecated=True
 )
 async def getGroupSchedule():
     try:
         event_table = EventsTableInterface()
-        res = (await event_table.get_by_type('Лекция')).all()
+        res = (await event_table.get_by_group_id(1)).all()
         table = list()
+        print(res)
         for item in res:
-            print(item._mapping)
-            time = Time.model_validate(item._mapping)
-            lesson_info = LessonInfo.model_validate(item._mapping)
+            data = item._mapping
+            print(data)
+            time = Time.model_validate(data)
+            lesson_info = LessonInfo.model_validate(data)
             lesson_info.time = time
             table.append(lesson_info)
         return table
@@ -42,12 +45,11 @@ async def getGroupSchedule():
 )
 async def getGroupSchedule(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):
     try:
-        html = await raspisanieGroups.get_schedule(id, sem, year, name)
+        html = await raspisanieGroups.get_schedule(id, sem, year)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
     except (requests_exc.ConnectionError, exc.NotFoundError) as error:
@@ -61,7 +63,6 @@ async def getGroupSchedule(
 )
 async def getTeacherSchedule(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):
@@ -81,7 +82,6 @@ async def getTeacherSchedule(
 )
 async def getDepartmentSchedule(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):
@@ -100,16 +100,16 @@ async def getDepartmentSchedule(
 )
 async def getGroupExam(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):
     try:
-        html = await raspisanieGroups.get_schedule(id, sem, year, name)
+        html = await raspisanieGroups.get_schedule(id, sem, year)
         generator = Generator(bridge=madi.MADIBridge(html))
         return await generator.generateSchedule()
     except (requests_exc.ConnectionError, exc.NotFoundError) as error:
         raise HTTPException(status_code=500, detail=error.args[0])
+
 
 @router.get(
         "/exam/teacher/{id}",
@@ -119,7 +119,6 @@ async def getGroupExam(
 )
 async def getTeacherExam(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):
@@ -139,7 +138,6 @@ async def getTeacherExam(
 )
 async def getDepartmentExam(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):
@@ -152,27 +150,26 @@ async def getDepartmentExam(
     
 
 @router.get(
-        "/{event_type}/group/{id}",
-        summary = "GET groups events by custom event type",
-        response_model=ResponseWithLessonInfo
+    "/custom/group/{id}",
+    summary = "GET groups events by custom event type",
+    response_model=ResponseWithLessonInfo
 )
 async def getGroupExam(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):
     pass
 
+
 @router.get(
-        "/{event_type}/teacher/{id}",
-        summary = "GET teachers events by custom event type",
-        response_model=ResponseWithLessonInfo
+    "/custom/teacher/{id}",
+    summary = "GET teachers events by custom event type",
+    response_model=ResponseWithLessonInfo
 
 )
 async def getTeacherExam(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):
@@ -180,13 +177,12 @@ async def getTeacherExam(
     
 
 @router.get(
-        "/{event_type}/department/{id}",
+        "/custom/department/{id}",
         summary = "GET department events by custom event type",
         response_model=ResponseWithLessonInfo
 )
 async def getDepartmentExam(
     id:int,
-    name:str = None,
     sem = Depends(dependencies.current_sem),
     year = Depends(dependencies.current_year)
 ):

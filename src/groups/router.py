@@ -5,9 +5,10 @@ from models import Community, Response, ResponseWithCommunity
 from database import database, schemas
 from requests import exceptions as requests_exc
 from bridges.institutes_requests import exceptions as institutes_requests_exc
+from utils import get_current_year
 import exceptions as exc
 
-router = APIRouter(prefix='/group', tags=['Groups'])
+router = APIRouter(prefix='/group', tags=['Communities'])
 
 raspisanieGroups = madiRequests.RaspisanieGroups()
 groupTable = database.DatabaseInterface(table=schemas.Group, engine=database.async_engine)
@@ -24,7 +25,10 @@ async def get_groups():
         return await generator.generateListOfCommunity()
     except (requests_exc.ConnectionError, institutes_requests_exc.EmptyResultError) as error:
         try:
-            db_result = (await groupTable.get()).all()
+            query = groupTable.base_query.where(
+                groupTable.table.year == get_current_year()
+            )
+            db_result = (await groupTable._execute_query(query)).all()
             data = [Community.model_validate(row._mapping) for row in db_result]
             return Response(data=data)
         except exc.NotFoundError as error:

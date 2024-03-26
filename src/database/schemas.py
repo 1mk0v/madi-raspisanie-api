@@ -1,84 +1,77 @@
 from .database import sync_engine
-from sqlalchemy import (
-    String, Time, ForeignKey, Integer, text
-)
-from sqlalchemy.orm import (
-    DeclarativeBase, Mapped, mapped_column
-)
-from utils import get_current_year
+from sqlalchemy import String, Time, ForeignKey, Integer, sql
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from typing import Annotated
 import datetime
 
+
+intpk = Annotated[int, mapped_column(Integer, primary_key=True)]
+boolInt = Annotated[int, mapped_column(Integer, insert_default=0, server_default='0')]
+depfgnkey = Annotated[int, mapped_column(ForeignKey('department.id'), nullable=True)]
+
 class Base(DeclarativeBase):
-    pass
+    id: Mapped[intpk]
+    is_deleted: Mapped[boolInt]
 
 class Department(Base):
     __tablename__ = "department"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    value: Mapped[str] = mapped_column(String(100))
-
-class Group(Base):
-    __tablename__ = "group"
-
-    id: Mapped[int] = mapped_column(primary_key=True, unique=False)
-    department_id: Mapped[int] = mapped_column(ForeignKey("department.id"), nullable=True)
-    year: Mapped[int]
     value: Mapped[str] = mapped_column(String(100))
 
 class Teacher(Base):
     __tablename__ = "teacher"
 
-    id: Mapped[int] = mapped_column(primary_key=True, unique=False)
-    department_id: Mapped[int] = mapped_column(ForeignKey("department.id"), nullable=True)
+    department_id: Mapped[depfgnkey]
     year: Mapped[int]
     value: Mapped[str] = mapped_column(String(100))
 
-class EventDetailType(Base):
-    __tablename__ = "event_detail_type"
+class Group(Base):
+    __tablename__ = "group"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    value: Mapped[str] = mapped_column(String(40))
+    department_id: Mapped[depfgnkey]
+    year: Mapped[int]
+    value: Mapped[str] = mapped_column(String(100))
 
-class EventDetail(Base):
-    __tablename__ = "event_detail"
+class Discipline(Base):
+    __tablename__ = "discipline"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    type_id: Mapped[int] = mapped_column(ForeignKey('event_detail_type.id'))
-    value: Mapped[str] = mapped_column(String(40))
+    id:Mapped[intpk]
+    value: Mapped[str] = mapped_column(String)
+    department_id: Mapped[depfgnkey]
 
-class EventTime(Base):
-    __tablename__ = "event_time"
+class Frequency(Base):
+    __tablename__ = "frequency"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    start: Mapped[datetime.time] = mapped_column(Time) 
-    end: Mapped[datetime.time] = mapped_column(Time, nullable=True)
+    id:Mapped[intpk]
+    value: Mapped[str] = mapped_column(String)
+
+class EventType(Base):
+    __tablename__ = "event_type"
+
+    id:Mapped[intpk]
+    value: Mapped[str] = mapped_column(String)
+
+class Auditorium(Base):
+    __tablename__ = "auditorium"
+
+    id:Mapped[intpk]
+    value: Mapped[str] = mapped_column(String)
+    type: Mapped[str] = mapped_column(String, nullable=True)
+    is_reserved: Mapped[boolInt]
 
 class Event(Base):
-    __tablename__="event"
+    __tablename__ = "event"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     date: Mapped[str] = mapped_column(String(15), nullable=True)
-    frequency_id: Mapped[str] = mapped_column(ForeignKey("event_detail.id"), nullable=True)
-    event_time_id: Mapped[int] = mapped_column(ForeignKey("event_time.id"), nullable=True)
+    frequency_id: Mapped[str] = mapped_column(ForeignKey('frequency.id'), nullable=True)
+    time_start: Mapped[datetime.time] = mapped_column(Time)
+    time_end: Mapped[datetime.time] = mapped_column(Time, nullable=True)
+    discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id'))
+    type_id: Mapped[int] = mapped_column(ForeignKey('event_type.id'))
+    auditorium_id: Mapped[int] = mapped_column(ForeignKey('auditorium.id'), nullable=True)
     group_id: Mapped[int] = mapped_column(ForeignKey("group.id"), nullable=True)
     teacher_id: Mapped[int] = mapped_column(ForeignKey("teacher.id"), nullable=True)
-    weekday_id: Mapped[int] = mapped_column(ForeignKey("event_detail.id"), nullable=True)
-    discipline_id: Mapped[int] = mapped_column(ForeignKey("event_detail.id"))
-    type_id: Mapped[int] = mapped_column(ForeignKey("event_detail.id"))
-    auditorium_id: Mapped[int] = mapped_column(ForeignKey("event_detail.id"), nullable=True)
+    weekday: Mapped[str] = mapped_column(String(30),nullable=True)
 
-
-Base.metadata.drop_all(sync_engine)
-queries=[
-    "insert into event_detail_type (value) values ('Тип недели'),('Аудитория'),('Дисциплина'),('Тип события'),('День недели');"
-    ,"insert into event_detail (type_id, value) values (1, 'Числитель'), (3, 'Тестовая дисциплина'), (4, 'Лекция'), (5, 'Понедельник'), (2, '234H');"
-    ,"insert into event_time (start, \"end\") values ('18:50:00', '20:20:00'), ('20:30:00', '22:00:00');"
-    ,"insert into \"group\" (id, value, year) values (1, 'Group1', 2023), (2, 'Group2', 2023), (3, 'Group3', 2023);"
-    ,"insert into \"teacher\" (id, value, year) values (1, 'Teacher1', 2023), (2, 'Teacher2', 2023), (3, 'Teacher3', 2023);"
-    ,"insert into event (date, frequency_id, discipline_id,group_id, teacher_id, event_time_id, type_id, weekday_id, auditorium_id) values ('', 1, 2, 1, 1, 1, 3, 4, 5);"
-]
+# Base.metadata.drop_all(sync_engine)
 Base.metadata.create_all(sync_engine)
-with sync_engine.connect() as conn:
-    for i in queries:
-        conn.execute(text(i))
-    conn.commit()
