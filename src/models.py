@@ -7,7 +7,7 @@ class Essence(BaseModel):
     value:str | None = None 
 
 class Community(Essence):
-    department:str | None = None
+    department_id:int | None = None
 
 class Time(BaseModel):
     start:datetime.time | None = None
@@ -29,7 +29,7 @@ class LessonInfo(Schedule):
     weekday:str | None = None
 
 class Response(BaseModel):
-    statusCode:int = 200
+    status_code:int = 200
     detail:str = 'Success'
     data: List[Essence] | List[Community] | List[LessonInfo] | List[Any] | None = None
 
