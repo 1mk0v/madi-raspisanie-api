@@ -22,7 +22,7 @@ class Formater():
             if len(value) > 3:
                 time = value[0].split(' - ')
                 self.__schedule = LessonInfo(
-                    friequency=value[3], 
+                    frequency=value[3], 
                     time=Time(start=time[0], end=time[1]),
                     discipline=value[1],
                     type=value[2],
@@ -34,14 +34,14 @@ class Formater():
                 self.__schedule = LessonInfo(
                     weekday=value[0],
                     type=value[1],
-                    friequency=value[2],
+                    frequency=value[2],
                     discipline=self.weekday
                 )
 
         def setScheduleTeacher(self, value:List[str]):
             time = value[0].split(' - ')
             self.__schedule = LessonInfo(
-                    friequency=value[4],
+                    frequency=value[4],
                     time=Time(start=time[0], end=time[1]),
                     discipline=value[2],
                     type=value[3],
@@ -53,7 +53,7 @@ class Formater():
         def setScheduleDepartment(self, value:List[str]):
             time = value[0].split(' - ') 
             self.__schedule = LessonInfo(
-                    friequency=value[1],
+                    frequency=value[1],
                     time=Time(start=time[0], end=time[1]),
                     discipline=value[4],
                     type=value[5],
