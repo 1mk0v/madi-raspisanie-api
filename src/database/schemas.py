@@ -1,7 +1,6 @@
-from .database import sync_engine
-from sqlalchemy import String, Time, ForeignKey, Integer, sql
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from typing import Annotated
+from sqlalchemy import String, Time, ForeignKey, Integer
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from typing import Annotated, List
 import datetime
 
 
@@ -24,6 +23,7 @@ class Teacher(Base):
     department_id: Mapped[depfgnkey]
     year: Mapped[int]
     value: Mapped[str] = mapped_column(String(100))
+    event:Mapped[List["Event"]] = relationship()
 
 class Group(Base):
     __tablename__ = "group"
@@ -31,6 +31,7 @@ class Group(Base):
     department_id: Mapped[depfgnkey]
     year: Mapped[int]
     value: Mapped[str] = mapped_column(String(100))
+    event:Mapped[List["Event"]] = relationship()
 
 class Discipline(Base):
     __tablename__ = "discipline"
@@ -71,7 +72,6 @@ class Event(Base):
     auditorium_id: Mapped[int] = mapped_column(ForeignKey('auditorium.id'), nullable=True)
     group_id: Mapped[int] = mapped_column(ForeignKey("group.id"), nullable=True)
     teacher_id: Mapped[int] = mapped_column(ForeignKey("teacher.id"), nullable=True)
+    group:Mapped["Group"] = relationship(back_populates='event')
+    teacher:Mapped["Teacher"] = relationship(back_populates='event')
     weekday: Mapped[str] = mapped_column(String(30),nullable=True)
-
-# Base.metadata.drop_all(sync_engine)
-Base.metadata.create_all(sync_engine)
