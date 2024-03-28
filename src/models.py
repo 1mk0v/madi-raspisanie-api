@@ -28,6 +28,13 @@ class Schedule(Lesson):
 class LessonInfo(Schedule):
     weekday:str | None = None
 
+class AuditoriumInfo(BaseModel):
+    time:Time
+    frequency:str | None = None
+    weekday: str | None = None
+    date: str | None = None
+    who_occupied: Community | str | None = None
+
 class Response(BaseModel):
     status_code:int = 200
     detail:str = 'Success'
