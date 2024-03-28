@@ -8,8 +8,8 @@ class BaseRequests():
     def __init__(self, url:str) -> None:
         self.url = url
 
-    def _get(self, url, data:dict = None) -> requests.Response:
-        return requests.get(self.url.format(url), data)
+    def _get(self, url:str = '', data:dict = None, headers:dict=None) -> requests.Response:
+        return requests.get(self.url.format(url), data, headers=headers)
     
     def _post(self, url, data:dict = None, ) -> requests.Response:
         return requests.post(self.url.format(url), data = data)
