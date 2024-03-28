@@ -56,6 +56,7 @@ class Auditorium(Base):
     __tablename__ = "auditorium"
 
     id:Mapped[intpk]
+    department_id: Mapped[depfgnkey]
     value: Mapped[str] = mapped_column(String)
     type: Mapped[str] = mapped_column(String, nullable=True)
     is_reserved: Mapped[boolInt]
