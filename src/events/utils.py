@@ -1,6 +1,9 @@
 from models import LessonInfo, Community, Time
 
 def get_validate_event(data):
+    """
+    For DB response
+    """
     res = []
     for item in data:
         event = item._mapping
