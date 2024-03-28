@@ -16,6 +16,22 @@ raspisanieDepartments = madiRequests.RaspisanieDepartments()
 
 
 @router.get(
+    "/lessons/department/{id}",
+    summary = "GET department schedule",
+    description="By default get actual schedule for department, but you can get old schedule",
+    response_model=ResponseWithLessonInfo
+)
+async def getDepartmentSchedule(
+    id:int,
+    sem = Depends(dependencies.current_sem),
+    year = Depends(dependencies.current_year)
+):
+    html = await raspisanieDepartments.get_schedule(id, sem, year)
+    generator = Generator(bridge=madi.MADIBridge(html))
+    return await generator.generateSchedule()
+
+
+@router.get(
     "/lessons/group/{id}",
     summary = "GET group schedule",
     description="By default get actual schedule for any group, but you can get old schedule",
