@@ -1,34 +1,41 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from bridges.institutes_requests import madi as madiRequirements
-from . import Auditoriums
+from exceptions import BaseAppException
+from dependencies import current_sem, current_year
+from models import AuditoriumInfo
+from . import AuditoriumsRaspisanie, AuditoriumsDB
+from .utils import get_validate_auditoriums
+from typing import List, Dict, AnyStr
 
-router = APIRouter(prefix='/auditoriums', tags=['Auditoriums'], deprecated=True)
+router = APIRouter(prefix='/auditoriums', tags=['Auditoriums'])
 raspisanieDepartments = madiRequirements.RaspisanieDepartments()
 
 @router.get(
-        "/asu",
-        summary = "GET department auditoriums",
+        '/reserved',
+        summary="GET reserved auditoriums",
+        description="Long response time (~1.3sec). Be careful to use this handler.",
+        response_model=List[str]
 )
-async def getDepartmentAuditoriums():
-    auditorium = Auditoriums()
-    return await auditorium.getAllAuditoriums()
+async def get_reserved_auditoriums():
+    try:
+        auditoriums = AuditoriumsRaspisanie()
+        return await auditoriums.get_reserved()
+    except BaseAppException as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail)
 
 
 @router.get(
-        "/asu/free",
-        summary = "GET free departments auditoriums",
-        deprecated=True
+        "/all/{dep_id}",
+        summary = "GET department auditoriums"
+        # response_model=Dict[AnyStr, List[AuditoriumInfo]]
 )
-async def getFreeDepartmentAuditoriums():
-    auditorium = Auditoriums()
-    return await auditorium.getFreeAuditoriums()
-
-
-@router.get(
-        "/asu/busy",
-        summary = "GET free departments auditoriums",
-        deprecated=True
-)
-async def getSchedule():
-    auditorium = Auditoriums()
-    return (await auditorium._getBusyAuditoriums())[0]
+async def getDepartmentAuditoriums(dep_id:int, sem:int = Depends(current_sem), year:int = Depends(current_year)):
+    try:
+        # raise BaseAppException(status_code=400)
+        auditoriums = AuditoriumsDB()
+        res = await auditoriums.get_by_department(dep_id)
+        return get_validate_auditoriums(res.fetchall())
+    except BaseAppException as error:
+        auditoriums = AuditoriumsRaspisanie()
+        return await auditoriums.get_all(dep_id, sem, year)
+        # raise HTTPException(status_code=error.status_code, detail=error.detail)
