@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy import exc as SQLException
 from sqlalchemy.orm.decl_api import DeclarativeAttributeIntercept
 
+
 SYNC_DB_URL = f"postgresql+psycopg://{DB_USER}:{DB_PSWD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 ASYNC_DB_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PSWD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
@@ -16,7 +17,6 @@ async_engine = create_async_engine(
     ASYNC_DB_URL, pool_recycle=3600
 )
 
-from .schemas import Base
 class DatabaseInterface():
     
     def __init__(self, table:DeclarativeAttributeIntercept | Base, engine:AsyncEngine) -> None:
