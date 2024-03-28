@@ -20,7 +20,6 @@ departmentTable = database.DatabaseInterface(table=schemas.Department, engine=da
 )
 async def getDepartments():
     try:
-        raise requests_exc.ConnectionError()
         html = await raspisanie_departments.get()
         generator = Generator(madi.MADIBridge(html))
         return await generator.generateListOfCommunity()
